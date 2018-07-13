@@ -2,6 +2,42 @@
 
 Backend for loopr iOS app.
 
+## API
+Get app versions
+[http://loopring-env.aqtsrpazpa.ap-northeast-1.elasticbeanstalk.com/api/v1/app_versions](http://loopring-env.aqtsrpazpa.ap-northeast-1.elasticbeanstalk.com/api/v1/app_versions)
+
+```
+{
+    "count": 3,
+    "app_versions": [
+        {
+            "updated_at": "2018-07-13 08:24:22.790371",
+            "must_update": false,
+            "created_at": "2018-07-13 08:24:22.790371",
+            "description": "Wallet management is ready.",
+            "id": 1,
+            "version": "0.0.1"
+        },
+        {
+            "updated_at": "2018-07-13 08:24:36.402759",
+            "must_update": false,
+            "created_at": "2018-07-13 08:24:36.402759",
+            "description": "Market is ready.",
+            "id": 2,
+            "version": "0.0.2"
+        },
+        {
+            "updated_at": "2018-07-13 08:24:52.587705",
+            "must_update": false,
+            "created_at": "2018-07-13 08:24:52.587705",
+            "description": "You can trade tokens now.",
+            "id": 3,
+            "version": "0.0.3"
+        }
+    ]
+}
+```
+
 ## Environment variables
 To run on local machine:
 
