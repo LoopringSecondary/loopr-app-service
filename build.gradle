@@ -26,7 +26,8 @@ targetCompatibility = 1.8
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
-    
+    compile group: 'org.json', name: 'json'
+
     // Database
 	compile("org.springframework:spring-jdbc")
 	compile("org.postgresql:postgresql")
