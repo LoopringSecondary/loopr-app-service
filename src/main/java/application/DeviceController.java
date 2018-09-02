@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,11 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 import rds.DatabaseConnection;
 
 @RestController
-public class AppVersionController {
+public class DeviceController {
 
-	@RequestMapping(value = "/api/v1/app_versions", method = RequestMethod.GET, produces = "application/json")
-    public String greeting() {
-    	
+	@RequestMapping(value = "/api/v1/device", method = RequestMethod.POST, produces = "application/json")
+    public String greeting(@RequestBody JSONObject postPayload) {
+		
+		System.out.println(postPayload);
+		
+		String bundleIdentifier = postPayload.getString("bundleIdentifier");
+		String deviceToken = postPayload.getString("bundleIdentifier");
+
     	JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
     	
     	String sql = String.format(

@@ -48,7 +48,7 @@ To run on local machine:
 * RDS_PASSWORD
 ```
 ========== RDS INFO ==========
-RDS_HOSTNAME   : aa12qdw9msqwuyw.cm2dxfcf18hd.ap-northeast-1.rds.amazonaws.com
+RDS_HOSTNAME   : localhost
 RDS_PORT       : 5432
 RDS_DB_NAME    : ebdb
 RDS_USERNAME   : loopring
