@@ -21,30 +21,66 @@ import rds.DatabaseConnection;
 @RestController
 public class DeviceController {
 
-	@RequestMapping(value = "/api/v1/device", method = RequestMethod.POST, produces = "application/json")
-    public String greeting(@RequestBody Map<String, String> postPayload) {
+	@RequestMapping(value = "/api/v1/devices", method = RequestMethod.POST, produces = "application/json")
+    public String greeting(@RequestBody Map<String, Object> postPayload) {
 		
 		System.out.println(postPayload);
 		
-		String address = postPayload.get("address");
-		String bundleIdentifier = postPayload.get("bundleIdentifier");
-		String deviceToken = postPayload.get("deviceToken");
+		String address = postPayload.get("address").toString();
+		String bundleIdentifier = postPayload.get("bundleIdentifier").toString();
+		String deviceToken = postPayload.get("deviceToken").toString();
+		boolean isReleaseMode = (Boolean) postPayload.get("isReleaseMode");
 
     	JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
     	
+    	// Check whether it exists.
+    	String selectSQL = String.format(
+    			"SELECT * " +
+    			"FROM devices " +
+    			"WHERE address='%s' AND bundle_identifier='%s' AND device_token='%s' AND is_release_mode=%s",
+    			address, bundleIdentifier, deviceToken, isReleaseMode);
+    	
+    	List<JSONObject> items = jdbcTemplate.query(
+    			selectSQL,
+    			new RowMapper<JSONObject>() {
+                    @Override
+                    public JSONObject mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    	JSONObject item = new JSONObject();
+
+						ResultSetMetaData rsmd = rs.getMetaData();
+						int numColumns = rsmd.getColumnCount();
+						for (int i=1; i<=numColumns; i++) {
+							String column_name = rsmd.getColumnName(i);
+							item.put(column_name, rs.getObject(column_name));
+						}
+						
+						return item;
+                    }
+    			}
+    	);
+    	
+    	if(items.size() > 0) {
+    		System.out.println("data exists");
+    		JSONObject response = new JSONObject();
+    		response.put("success", true);
+    		response.put("message", "exists");
+    		return response.toString();
+    	}
+    	
+    	// insert new data
     	String insertSQL = String.format(
-    			"INSERT INTO devices (address, bundleIdentifier, deviceToken) " +
-    			"VALUES (?, ?, ?)");
+    			"INSERT INTO devices (address, bundle_identifier, device_token, is_release_mode) " +
+    			"VALUES (?, ?, ?, ?)");
     	
     	// define query arguments
-    	Object[] params = new Object[] {address, bundleIdentifier, deviceToken};
+    	Object[] params = new Object[] {address, bundleIdentifier, deviceToken, isReleaseMode};
     	
     	// define SQL types of the arguments
-    	int[] types = new int[] { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR };
+    	int[] types = new int[] { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.BOOLEAN };
     	
     	int row = jdbcTemplate.update(insertSQL, params, types);
     	System.out.println(row + " row inserted.");
-    	
+    	    	
         JSONObject response = new JSONObject();
 		response.put("success", true);
 
