@@ -8,7 +8,6 @@ import java.util.concurrent.*;
 
 import javax.net.ssl.SSLException;
 
-import org.springframework.expression.EvaluationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,19 +54,20 @@ public class GreetingController {
     			}
     	);
     	
-    	File f = new File("./aps_certificates/Certificates.p12");
+    	File f = new File("./aps_certificates/leaf.prod.app.p12");
     	System.out.println(f.exists());
     	
     	try {
 			final ApnsClient apnsClient = new ApnsClientBuilder()
-			        .setApnsServer(ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
-			        .setClientCredentials(new File("./aps_certificates/Certificates.p12"), "123456")
+			        .setApnsServer(ApnsClientBuilder.PRODUCTION_APNS_HOST)
+			        .setClientCredentials(new File("./aps_certificates/leaf.prod.app.p12"), "123456")
 			        .build();
 			
 			final SimpleApnsPushNotification pushNotification;
 			{
 				final ApnsPayloadBuilder payloadBuilder = new ApnsPayloadBuilder();
 				payloadBuilder.setAlertBody("Example!");
+				payloadBuilder.setSound("default");
 
 				final String payload = payloadBuilder.buildWithDefaultMaximumLength();
 				final String token = TokenUtil.sanitizeTokenString("...");
