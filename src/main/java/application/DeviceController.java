@@ -4,7 +4,10 @@ import org.json.JSONObject;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -19,41 +22,31 @@ import rds.DatabaseConnection;
 public class DeviceController {
 
 	@RequestMapping(value = "/api/v1/device", method = RequestMethod.POST, produces = "application/json")
-    public String greeting(@RequestBody JSONObject postPayload) {
+    public String greeting(@RequestBody Map<String, String> postPayload) {
 		
 		System.out.println(postPayload);
 		
-		String bundleIdentifier = postPayload.getString("bundleIdentifier");
-		String deviceToken = postPayload.getString("bundleIdentifier");
+		String address = postPayload.get("address");
+		String bundleIdentifier = postPayload.get("bundleIdentifier");
+		String deviceToken = postPayload.get("deviceToken");
 
     	JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
     	
-    	String sql = String.format(
-    			"SELECT * " +
-    			"FROM app_versions");
+    	String insertSQL = String.format(
+    			"INSERT INTO devices (address, bundleIdentifier, deviceToken) " +
+    			"VALUES (?, ?, ?)");
     	
-    	List<JSONObject> items = jdbcTemplate.query(
-    			sql,
-    			new RowMapper<JSONObject>() {
-                    @Override
-                    public JSONObject mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    	JSONObject item = new JSONObject();
-
-						ResultSetMetaData rsmd = rs.getMetaData();
-						int numColumns = rsmd.getColumnCount();
-						for (int i=1; i<=numColumns; i++) {
-							String column_name = rsmd.getColumnName(i);
-							item.put(column_name, rs.getObject(column_name));
-						}
-						
-						return item;
-                    }
-    			}
-    	);
+    	// define query arguments
+    	Object[] params = new Object[] {address, bundleIdentifier, deviceToken};
+    	
+    	// define SQL types of the arguments
+    	int[] types = new int[] { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR };
+    	
+    	int row = jdbcTemplate.update(insertSQL, params, types);
+    	System.out.println(row + " row inserted.");
     	
         JSONObject response = new JSONObject();
-		response.put("count", items.size());
-		response.put("app_versions", items);
+		response.put("success", true);
 
         return response.toString();
     }
