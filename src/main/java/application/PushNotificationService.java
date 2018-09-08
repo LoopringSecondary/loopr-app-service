@@ -1,7 +1,9 @@
 package application;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -12,8 +14,14 @@ import java.util.concurrent.ExecutionException;
 import javax.net.ssl.SSLException;
 
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.util.ResourceUtils;
 
 import com.turo.pushy.apns.ApnsClient;
 import com.turo.pushy.apns.ApnsClientBuilder;
@@ -26,7 +34,7 @@ import com.turo.pushy.apns.util.concurrent.PushNotificationFuture;
 import rds.DatabaseConnection;
 
 public class PushNotificationService {
-	
+
 	public static void process(String address) {
 		System.out.println("PushNotificationService.process: address " + address);
 		JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
@@ -60,12 +68,14 @@ public class PushNotificationService {
     	for(JSONObject item: items) {
     		String bundleIdentifier  = item.getString("bundle_identifier");
     		String deviceToken  = item.getString("device_token");
-    		send(bundleIdentifier, deviceToken, "Received ETH!");
+    		PushNotificationService service = new PushNotificationService();
+    		service.send(bundleIdentifier, deviceToken, address + " received ETH!");
     	}
 	}
 
-	public static void send(String bundleIdentifier, String deviceToken, String alertBody) {
-		String filePath = String.format("./aps_certificates/%s.p12", bundleIdentifier);
+	public void send(String bundleIdentifier, String deviceToken, String alertBody) {
+		String filePath = String.format("%s.p12", bundleIdentifier);
+		System.out.println(filePath);
 		File f = new File(filePath);
     	System.out.println(f.exists());
     	

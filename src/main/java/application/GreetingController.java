@@ -54,56 +54,8 @@ public class GreetingController {
     			}
     	);
     	
-    	File f = new File("./aps_certificates/leaf.prod.app.p12");
-    	System.out.println(f.exists());
-    	
-    	try {
-			final ApnsClient apnsClient = new ApnsClientBuilder()
-			        .setApnsServer(ApnsClientBuilder.PRODUCTION_APNS_HOST)
-			        .setClientCredentials(new File("./aps_certificates/leaf.prod.app.p12"), "123456")
-			        .build();
-			
-			final SimpleApnsPushNotification pushNotification;
-			{
-				final ApnsPayloadBuilder payloadBuilder = new ApnsPayloadBuilder();
-				payloadBuilder.setAlertBody("Example!");
-				payloadBuilder.setSound("default");
-
-				final String payload = payloadBuilder.buildWithDefaultMaximumLength();
-				final String token = TokenUtil.sanitizeTokenString("...");
-
-				pushNotification = new SimpleApnsPushNotification(token, "leaf.prod.app", payload);
-		    }
-			final PushNotificationFuture<SimpleApnsPushNotification, PushNotificationResponse<SimpleApnsPushNotification>>
-		    sendNotificationFuture = apnsClient.sendNotification(pushNotification);
-			
-			try {
-			    final PushNotificationResponse<SimpleApnsPushNotification> pushNotificationResponse =
-			            sendNotificationFuture.get();
-
-			    if (pushNotificationResponse.isAccepted()) {
-			        System.out.println("Push notification accepted by APNs gateway.");
-			    } else {
-			        System.out.println("Notification rejected by the APNs gateway: " +
-			                pushNotificationResponse.getRejectionReason());
-
-			        if (pushNotificationResponse.getTokenInvalidationTimestamp() != null) {
-			            System.out.println("\t…and the token is invalid as of " +
-			                pushNotificationResponse.getTokenInvalidationTimestamp());
-			        }
-			    }
-			} catch (final ExecutionException | InterruptedException e) {
-			    System.err.println("Failed to send push notification.");
-			    e.printStackTrace();
-			}
-			
-		} catch (SSLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	PushNotificationService service = new PushNotificationService();
+    	service.send("leaf.prod.app", "...", "Text");
     	
         return new Greeting(counter.incrementAndGet(),
                             String.format(template, name));
