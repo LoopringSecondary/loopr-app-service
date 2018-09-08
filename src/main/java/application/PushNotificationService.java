@@ -35,7 +35,7 @@ import rds.DatabaseConnection;
 
 public class PushNotificationService {
 
-	public static void process(String address) {
+	public static void process(String address, String alertBody) {
 		System.out.println("PushNotificationService.process: address " + address);
 		JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
     	
@@ -69,7 +69,7 @@ public class PushNotificationService {
     		String bundleIdentifier  = item.getString("bundle_identifier");
     		String deviceToken  = item.getString("device_token");
     		PushNotificationService service = new PushNotificationService();
-    		service.send(bundleIdentifier, deviceToken, address + " received ETH!");
+    		service.send(bundleIdentifier, deviceToken, alertBody);
     	}
 	}
 

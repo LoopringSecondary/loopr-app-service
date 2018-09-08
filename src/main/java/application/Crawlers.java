@@ -31,6 +31,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import java.math.BigInteger;
+
 @Component
 public class Crawlers {
 
@@ -81,33 +83,53 @@ public class Crawlers {
     }
     
     public static void queryDataFromRelay(int currentTime, String address) {
-    	JSONObject jsonObject = new JSONObject();
-        jsonObject.put("method", "loopring_getTransactions");
-        jsonObject.put("id", UUID.randomUUID().toString());
-        Map params = new HashMap();
-        params.put("owner", address);
-        params.put("symbol", "ETH");
-        params.put("txType", "receive");
-        jsonObject.put("params", new Map[]{params});
-        
-        String response = sendPostRequest("https://relay1.loopr.io/rpc/v2", jsonObject.toString());
-        // System.out.println(response);
-        
-        JSONObject responseObject = new JSONObject(response);
-        JSONArray results = responseObject.getJSONObject("result").getJSONArray("data");
-        for(int n = 0; n < results.length(); n++) {
-            JSONObject object = results.getJSONObject(n);
-            // do some stuff....
-            int createTime = object.getInt("createTime");
-            if(currentTime - createTime < rateInSecond) {
-            	System.out.println("About to send PushNotificationService");
-            	System.out.println("CreateTime: " + createTime);
-            	System.out.println("CurrentTime: " + currentTime);
-            	System.out.println(currentTime - createTime);
-            	PushNotificationService.process(address);
-            	System.out.println(".....");
+    	// TODO: support only three tokens in the first version
+    	String[] symbols = new String[]{ "ETH", "WETH", "LRC" };
+    	
+    	for(String symbol: symbols) {
+        	JSONObject jsonObject = new JSONObject();
+            jsonObject.put("method", "loopring_getTransactions");
+            jsonObject.put("id", UUID.randomUUID().toString());
+            Map params = new HashMap();
+            params.put("owner", address);
+            params.put("symbol", symbol);
+            params.put("txType", "receive");
+            jsonObject.put("params", new Map[]{params});
+            
+            
+            
+            
+            // TODO: add retry
+            String response = sendPostRequest("https://relay1.loopr.io/rpc/v2", jsonObject.toString());
+            // System.out.println(response);
+            
+            JSONObject responseObject = new JSONObject(response);
+            JSONArray results = responseObject.getJSONObject("result").getJSONArray("data");
+            for(int n = 0; n < results.length(); n++) {
+                JSONObject object = results.getJSONObject(n);
+                // do some stuff....
+                int createTime = object.getInt("createTime");
+                if(currentTime - createTime < rateInSecond) {
+                	System.out.println("About to send PushNotificationService");
+                	System.out.println("CreateTime: " + createTime);
+                	System.out.println("CurrentTime: " + currentTime);
+                	System.out.println(currentTime - createTime);
+                	
+                	String value = object.getString("value");
+                	String alertBody = String.format("%s received %s %s.", address, stringToBigInteger(value));
+                	
+                	PushNotificationService.process(address, alertBody);
+                	System.out.println(".....");
+                }
             }
-        }
+    	}
+    	
+    }
+    
+    public static BigInteger stringToBigInteger(String value) {
+    	// TODO: consider other decimals.
+    	BigInteger decimal = new BigInteger("1000000000000000000"); 
+    	return new BigInteger(value.substring(2), 16).divide(decimal);
     }
     
     public static String sendPostRequest(String requestUrl, String payload) {
