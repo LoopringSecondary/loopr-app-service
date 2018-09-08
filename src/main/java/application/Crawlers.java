@@ -1,6 +1,8 @@
 package application;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
@@ -40,7 +42,7 @@ public class Crawlers {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    private static final int rateInSecond = 60;
+    private static final int rateInSecond = 3*60;
     
     @Scheduled(fixedRate = rateInSecond*1000)
     public void pushNotificationsForSend() {
@@ -96,9 +98,6 @@ public class Crawlers {
             params.put("txType", "receive");
             jsonObject.put("params", new Map[]{params});
             
-            
-            
-            
             // TODO: add retry
             String response = sendPostRequest("https://relay1.loopr.io/rpc/v2", jsonObject.toString());
             // System.out.println(response);
@@ -109,14 +108,17 @@ public class Crawlers {
                 JSONObject object = results.getJSONObject(n);
                 // do some stuff....
                 int createTime = object.getInt("createTime");
+
                 if(currentTime - createTime < rateInSecond) {
                 	System.out.println("About to send PushNotificationService");
                 	System.out.println("CreateTime: " + createTime);
                 	System.out.println("CurrentTime: " + currentTime);
                 	System.out.println(currentTime - createTime);
                 	
-                	String value = object.getString("value");
-                	String alertBody = String.format("%s received %s %s.", address, stringToBigInteger(value));
+                    System.out.println(object.toString());
+                    String value = object.getString("value");
+                	String alertBody = String.format("Address %s received %s %s.", address, stringToBigInteger(value), symbol);
+                	System.out.println(alertBody);
                 	
                 	PushNotificationService.process(address, alertBody);
                 	System.out.println(".....");
@@ -126,10 +128,28 @@ public class Crawlers {
     	
     }
     
-    public static BigInteger stringToBigInteger(String value) {
+    public static String stringToBigInteger(String value) {
     	// TODO: consider other decimals.
-    	BigInteger decimal = new BigInteger("1000000000000000000"); 
-    	return new BigInteger(value.substring(2), 16).divide(decimal);
+    	int decimals = 18;
+    	String amount;
+    	if(value.startsWith("0x")) {
+    		amount = new BigInteger(value.substring(2), 16).toString();
+    	} else {
+    		amount = value;
+    	}
+
+    	if(decimals >= amount.length()) {
+    		String prepend = String.join("", Collections.nCopies(decimals - amount.length()+1, "0"));
+    		amount = prepend + amount;
+    	}
+    	System.out.println(amount);
+    	amount = amount.substring(0, amount.length()-decimals) + "." + amount.substring(amount.length()-decimals, amount.length());
+    	Double amountInDouble = Double.parseDouble(amount);
+    	
+    	DecimalFormat df = new DecimalFormat("0");
+    	df.setMaximumFractionDigits(18);
+    	System.out.println(df.format(amountInDouble));
+    	return df.format(amountInDouble);
     }
     
     public static String sendPostRequest(String requestUrl, String payload) {
