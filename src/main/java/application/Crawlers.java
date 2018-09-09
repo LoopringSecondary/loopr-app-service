@@ -42,7 +42,7 @@ public class Crawlers {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    private static final int rateInSecond = 3*60;
+    private static final int rateInSecond = 1*60;
     
     @Scheduled(fixedRate = rateInSecond*1000)
     public void pushNotificationsForSend() {
@@ -80,11 +80,15 @@ public class Crawlers {
     	
     	for(JSONObject item: items) {
     		String address  = item.getString("address");
-    		queryDataFromRelay(currentTime, address);
+    		
+    		processTransactions(currentTime, address);
+    		
+    		processOrders(currentTime, address);
     	}
     }
     
-    public static void queryDataFromRelay(int currentTime, String address) {
+    // loopring_getTransactions
+    public static void processTransactions(int currentTime, String address) {
     	// TODO: support only three tokens in the first version
     	String[] symbols = new String[]{ "ETH", "WETH", "LRC" };
     	
@@ -125,7 +129,54 @@ public class Crawlers {
                 }
             }
     	}
-    	
+    }
+    
+    // loopring_getLatestFills
+    public static void processOrders(int currentTime, String address) {
+    	JSONObject jsonObject = new JSONObject();
+        jsonObject.put("method", "loopring_getLatestFills");
+        jsonObject.put("id", UUID.randomUUID().toString());
+        Map params = new HashMap();
+        params.put("owner", address);
+        
+        // TODO: only support LRC-WETH now.
+        params.put("market", "LRC-WETH");
+        
+        jsonObject.put("params", new Map[]{params});
+        
+        // TODO: add retry
+        String response = sendPostRequest("https://relay1.loopr.io/rpc/v2", jsonObject.toString());
+        // System.out.println(response);
+        
+        JSONObject responseObject = new JSONObject(response);
+        JSONArray results = responseObject.getJSONArray("result");
+        for(int n = 0; n < results.length(); n++) {
+            JSONObject object = results.getJSONObject(n);
+            // do some stuff....
+            int createTime = object.getInt("createTime");
+            // System.out.println(object.toString());
+
+            if(currentTime - createTime < rateInSecond) {
+            	System.out.println("About to send PushNotificationService");
+            	System.out.println("CreateTime: " + createTime);
+            	System.out.println("CurrentTime: " + currentTime);
+            	System.out.println(currentTime - createTime);
+            	
+            	Double amountInDouble = object.getDouble("amount");
+            	String side = object.getString("side");
+            	
+            	String alertBody = "";
+            	if(side.equals("buy")) {
+            		alertBody = String.format("Address %s bought %s %s", address, formatDouble(amountInDouble), "LRC");
+            	} else {
+            		alertBody = String.format("Address %s sold %s %s", address, formatDouble(amountInDouble), "LRC");
+            	}
+            	System.out.println(alertBody);
+
+            	PushNotificationService.process(address, alertBody);
+            	System.out.println(".....");
+            }
+        }
     }
     
     public static String stringToBigInteger(String value) {
@@ -146,10 +197,14 @@ public class Crawlers {
     	amount = amount.substring(0, amount.length()-decimals) + "." + amount.substring(amount.length()-decimals, amount.length());
     	Double amountInDouble = Double.parseDouble(amount);
     	
+    	return formatDouble(amountInDouble);
+    }
+    
+    private static String formatDouble(Double value) {
     	DecimalFormat df = new DecimalFormat("0");
     	df.setMaximumFractionDigits(18);
-    	System.out.println(df.format(amountInDouble));
-    	return df.format(amountInDouble);
+    	System.out.println(df.format(value));
+    	return df.format(value);
     }
     
     public static String sendPostRequest(String requestUrl, String payload) {
