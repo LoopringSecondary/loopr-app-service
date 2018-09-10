@@ -83,7 +83,9 @@ public class Crawlers {
     		
     		processTransactions(currentTime, address);
     		
-    		processOrders(currentTime, address);
+    		processOrders(currentTime, address, "p2p_order");
+    		
+    		processOrders(currentTime, address, "market_order");
     	}
     }
     
@@ -114,7 +116,7 @@ public class Crawlers {
                 int createTime = object.getInt("createTime");
 
                 if(currentTime - createTime < rateInSecond) {
-                	System.out.println("About to send PushNotificationService");
+                	System.out.println("About to processTransactions");
                 	System.out.println("CreateTime: " + createTime);
                 	System.out.println("CurrentTime: " + currentTime);
                 	System.out.println(currentTime - createTime);
@@ -131,17 +133,16 @@ public class Crawlers {
     	}
     }
     
-    // loopring_getLatestFills
-    public static void processOrders(int currentTime, String address) {
+    // loopring_getOrders
+    public static void processOrders(int currentTime, String address, String orderType) {
     	JSONObject jsonObject = new JSONObject();
-        jsonObject.put("method", "loopring_getLatestFills");
+        jsonObject.put("method", "loopring_getOrders");
         jsonObject.put("id", UUID.randomUUID().toString());
         Map params = new HashMap();
         params.put("owner", address);
-        
-        // TODO: only support LRC-WETH now.
-        params.put("market", "LRC-WETH");
-        
+        params.put("status", "ORDER_FINISHED");
+        params.put("orderType", orderType);
+
         jsonObject.put("params", new Map[]{params});
         
         // TODO: add retry
@@ -149,27 +150,45 @@ public class Crawlers {
         // System.out.println(response);
         
         JSONObject responseObject = new JSONObject(response);
-        JSONArray results = responseObject.getJSONArray("result");
+        JSONArray results = responseObject.getJSONObject("result").getJSONArray("data");
         for(int n = 0; n < results.length(); n++) {
-            JSONObject object = results.getJSONObject(n);
+            JSONObject object = results.getJSONObject(n).getJSONObject("originalOrder");
             // do some stuff....
             int createTime = object.getInt("createTime");
             // System.out.println(object.toString());
-
+            
             if(currentTime - createTime < rateInSecond) {
             	System.out.println("About to send PushNotificationService");
             	System.out.println("CreateTime: " + createTime);
             	System.out.println("CurrentTime: " + currentTime);
             	System.out.println(currentTime - createTime);
             	
-            	Double amountInDouble = object.getDouble("amount");
-            	String side = object.getString("side");
-            	
+                String side;
+                if(orderType == "p2p_order") {
+                	if(object.getString("p2pSide") == "maker") {
+                		side = "sell";
+                	} else {
+                		side = "buy";
+                	}
+                } else {
+                	side = object.getString("side");
+                }
+                
             	String alertBody = "";
-            	if(side.equals("buy")) {
-            		alertBody = String.format("Address %s bought %s %s", address, formatDouble(amountInDouble), "LRC");
+            	if(side.equals("sell")) {
+            		String amountS = object.getString("amountS");
+            		String tokenS = object.getString("tokenS");
+            		alertBody = String.format("Address %s bought %s %s", address, stringToBigInteger(amountS), tokenS);
             	} else {
-            		alertBody = String.format("Address %s sold %s %s", address, formatDouble(amountInDouble), "LRC");
+            		String amountB = object.getString("amountB");
+            		String tokenB = object.getString("tokenB");
+            		alertBody = String.format("Address %s sold %s %s", address, stringToBigInteger(amountB), tokenB);
+            	}
+            	
+            	if(orderType == "p2p_order") {
+            		alertBody = alertBody + " in a P2P order.";
+            	} else {
+            		alertBody = alertBody + " in a market order.";
             	}
             	System.out.println(alertBody);
 
