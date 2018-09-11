@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,6 +31,7 @@ public class DeviceController {
 		String bundleIdentifier = postPayload.get("bundleIdentifier").toString();
 		String deviceToken = postPayload.get("deviceToken").toString();
 		boolean isReleaseMode = (Boolean) postPayload.get("isReleaseMode");
+		String currentInstalledVersion = postPayload.get("currentInstalledVersion").toString();
 
     	JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
     	
@@ -69,14 +71,14 @@ public class DeviceController {
     	
     	// insert new data
     	String insertSQL = String.format(
-    			"INSERT INTO devices (address, bundle_identifier, device_token, is_release_mode) " +
-    			"VALUES (?, ?, ?, ?)");
+    			"INSERT INTO devices (address, bundle_identifier, device_token, is_release_mode, current_installed_version) " +
+    			"VALUES (?, ?, ?, ?, ?)");
     	
     	// define query arguments
-    	Object[] params = new Object[] {address, bundleIdentifier, deviceToken, isReleaseMode};
+    	Object[] params = new Object[] {address, bundleIdentifier, deviceToken, isReleaseMode, currentInstalledVersion};
     	
     	// define SQL types of the arguments
-    	int[] types = new int[] { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.BOOLEAN };
+    	int[] types = new int[] { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.BOOLEAN, Types.VARCHAR };
     	
     	int row = jdbcTemplate.update(insertSQL, params, types);
     	System.out.println(row + " row inserted.");
@@ -86,4 +88,59 @@ public class DeviceController {
 
         return response.toString();
     }
+	
+	// deviceToken is unique in devices table
+	@RequestMapping(value = "/api/v1/devices/{deviceToken}", method = RequestMethod.DELETE)
+	public String delete(@PathVariable("deviceToken") int deviceToken) {
+    	JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
+    	
+    	// TODO: not need to check if it exists.
+    	// Check whether it exists.
+    	String selectSQL = String.format(
+    			"SELECT * " +
+    			"FROM devices " +
+    			"WHERE device_token='%s'",
+    			deviceToken);
+    	
+    	List<JSONObject> items = jdbcTemplate.query(
+    			selectSQL,
+    			new RowMapper<JSONObject>() {
+                    @Override
+                    public JSONObject mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    	JSONObject item = new JSONObject();
+
+						ResultSetMetaData rsmd = rs.getMetaData();
+						int numColumns = rsmd.getColumnCount();
+						for (int i=1; i<=numColumns; i++) {
+							String column_name = rsmd.getColumnName(i);
+							item.put(column_name, rs.getObject(column_name));
+						}
+						
+						return item;
+                    }
+    			}
+    	);
+    	
+    	if(items.size() > 0) {
+    		System.out.println("data exists");
+    		
+    		// insert new data
+        	String insertSQL = String.format(
+        			"UPDATE devices SET is_enabled=False " +
+        			"WHERE device_token='%s'",
+        			deviceToken);
+        	int row = jdbcTemplate.update(insertSQL);
+        	System.out.println(row + " row updated.");
+    		
+    		JSONObject response = new JSONObject();
+    		response.put("success", true);
+    		return response.toString();
+    	}
+	    
+        JSONObject response = new JSONObject();
+		response.put("success", false);
+		response.put("message", "data not found");
+
+		return response.toString();
+	}
 }

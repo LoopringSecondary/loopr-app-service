@@ -56,7 +56,7 @@ public class Crawlers {
     	String selectSQL = String.format(
     			"SELECT address " +
     			"FROM devices " +
-    			"WHERE bundle_identifier='%s' AND is_release_mode=%s",
+    			"WHERE is_enabled=True AND bundle_identifier='%s' AND is_release_mode=%s",
     			"leaf.prod.app", true);
     	
     	List<JSONObject> items = jdbcTemplate.query(
