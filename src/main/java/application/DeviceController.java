@@ -31,7 +31,9 @@ public class DeviceController {
 		String bundleIdentifier = postPayload.get("bundleIdentifier").toString();
 		String deviceToken = postPayload.get("deviceToken").toString();
 		boolean isReleaseMode = (Boolean) postPayload.get("isReleaseMode");
-		String currentInstalledVersion = postPayload.get("currentInstalledVersion").toString();
+		
+		// not in the request...
+		// String currentInstalledVersion = postPayload.get("currentInstalledVersion").toString();
 
     	JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
     	
@@ -62,6 +64,15 @@ public class DeviceController {
     	);
     	
     	if(items.size() > 0) {
+    		// update new data
+        	String updateSQL = String.format(
+        			"UPDATE devices " +
+        			"SET is_enabled=True " +
+        			"WHERE address='%s' AND bundle_identifier='%s' AND device_token='%s' AND is_release_mode=%s",
+        			address, bundleIdentifier, deviceToken, isReleaseMode);
+        	int row = jdbcTemplate.update(updateSQL);
+        	System.out.println(row + " row updated.");
+        	
     		System.out.println("data exists");
     		JSONObject response = new JSONObject();
     		response.put("success", true);
@@ -75,7 +86,7 @@ public class DeviceController {
     			"VALUES (?, ?, ?, ?, ?)");
     	
     	// define query arguments
-    	Object[] params = new Object[] {address, bundleIdentifier, deviceToken, isReleaseMode, currentInstalledVersion};
+    	Object[] params = new Object[] {address, bundleIdentifier, deviceToken, isReleaseMode, "0.9.9"};
     	
     	// define SQL types of the arguments
     	int[] types = new int[] { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.BOOLEAN, Types.VARCHAR };
@@ -90,8 +101,9 @@ public class DeviceController {
     }
 	
 	// deviceToken is unique in devices table
-	@RequestMapping(value = "/api/v1/devices/{deviceToken}", method = RequestMethod.DELETE)
-	public String delete(@PathVariable("deviceToken") int deviceToken) {
+	@RequestMapping(value = "/api/v1/devices/{deviceToken}/{address}", method = RequestMethod.DELETE)
+	public String delete(@PathVariable("deviceToken") String deviceToken,
+			@PathVariable("address") String address) {
     	JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
     	
     	// TODO: not need to check if it exists.
@@ -99,8 +111,8 @@ public class DeviceController {
     	String selectSQL = String.format(
     			"SELECT * " +
     			"FROM devices " +
-    			"WHERE device_token='%s'",
-    			deviceToken);
+    			"WHERE device_token='%s' AND address='%s'",
+    			deviceToken, address);
     	
     	List<JSONObject> items = jdbcTemplate.query(
     			selectSQL,
@@ -124,12 +136,12 @@ public class DeviceController {
     	if(items.size() > 0) {
     		System.out.println("data exists");
     		
-    		// insert new data
-        	String insertSQL = String.format(
+    		// update new data
+        	String updateSQL = String.format(
         			"UPDATE devices SET is_enabled=False " +
-        			"WHERE device_token='%s'",
-        			deviceToken);
-        	int row = jdbcTemplate.update(insertSQL);
+        			"WHERE device_token='%s' AND address='%s'",
+        	    	deviceToken, address);
+        	int row = jdbcTemplate.update(updateSQL);
         	System.out.println(row + " row updated.");
     		
     		JSONObject response = new JSONObject();
