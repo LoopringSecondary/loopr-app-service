@@ -56,9 +56,9 @@ public class Crawlers {
     	String selectSQL = String.format(
     			"SELECT address " +
     			"FROM devices " +
-    			"WHERE is_enabled=True AND bundle_identifier='%s' AND is_release_mode=%s",
-    			"leaf.prod.app", true);
-    	
+    			"WHERE is_enabled=True AND bundle_identifier='%s'",
+    			"leaf.prod.app");
+
     	List<JSONObject> items = jdbcTemplate.query(
     			selectSQL,
     			new RowMapper<JSONObject>() {
@@ -83,9 +83,9 @@ public class Crawlers {
     		
     		processTransactions(currentTime, address);
     		
-    		processOrders(currentTime, address, "p2p_order");
+    		// processOrders(currentTime, address, "p2p_order");
     		
-    		processOrders(currentTime, address, "market_order");
+    		// processOrders(currentTime, address, "market_order");
     	}
     }
     
@@ -109,9 +109,16 @@ public class Crawlers {
             // System.out.println(response);
             
             JSONObject responseObject = new JSONObject(response);
-            JSONArray results = responseObject.getJSONObject("result").getJSONArray("data");
-            for(int n = 0; n < results.length(); n++) {
-                JSONObject object = results.getJSONObject(n);
+
+            if(responseObject.isNull("result")) {
+            	System.out.println("No transactions found.");
+            	continue;
+            }
+            JSONObject results = responseObject.getJSONObject("result");
+            JSONArray data = results.getJSONArray("data");
+
+            for(int n = 0; n < data.length(); n++) {
+                JSONObject object = data.getJSONObject(n);
                 // do some stuff....
                 int createTime = object.getInt("createTime");
 
@@ -228,6 +235,7 @@ public class Crawlers {
     
     public static String sendPostRequest(String requestUrl, String payload) {
         try {
+        	System.out.println("payload: " + payload);
             URL url = new URL(requestUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 

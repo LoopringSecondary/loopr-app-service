@@ -43,8 +43,8 @@ public class PushNotificationService {
     	String selectSQL = String.format(
     			"SELECT * " +
     			"FROM devices " +
-    			"WHERE address='%s' AND is_release_mode=%s",
-    			address, true);
+    			"WHERE address='%s'",
+    			address);
     	
     	List<JSONObject> items = jdbcTemplate.query(
     			selectSQL,
@@ -68,20 +68,30 @@ public class PushNotificationService {
     	for(JSONObject item: items) {
     		String bundleIdentifier  = item.getString("bundle_identifier");
     		String deviceToken  = item.getString("device_token");
+    		Boolean isReleaseMode = item.getBoolean("is_release_mode");
     		PushNotificationService service = new PushNotificationService();
-    		service.send(bundleIdentifier, deviceToken, alertBody);
+    		service.send(bundleIdentifier, deviceToken, isReleaseMode, alertBody);
     	}
 	}
 
-	public void send(String bundleIdentifier, String deviceToken, String alertBody) {
-		String filePath = String.format("%s.p12", bundleIdentifier);
+	public void send(String bundleIdentifier, String deviceToken, Boolean isReleaseMode, String alertBody) {
+		String filePath;
+		String APNS_HOST;
+		if(isReleaseMode) {
+			filePath = String.format("%s.p12", bundleIdentifier);
+			APNS_HOST = ApnsClientBuilder.PRODUCTION_APNS_HOST;
+		} else {
+			filePath = String.format("%s.development.p12", bundleIdentifier);
+			APNS_HOST = ApnsClientBuilder.DEVELOPMENT_APNS_HOST;
+		}
+				
 		System.out.println(filePath);
 		File f = new File(filePath);
     	System.out.println(f.exists());
     	
     	try {
 			final ApnsClient apnsClient = new ApnsClientBuilder()
-			        .setApnsServer(ApnsClientBuilder.PRODUCTION_APNS_HOST)
+			        .setApnsServer(APNS_HOST)
 			        .setClientCredentials(f, "123456")
 			        .build();
 			

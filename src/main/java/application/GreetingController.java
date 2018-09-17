@@ -54,8 +54,9 @@ public class GreetingController {
     			}
     	);
     	
-    	PushNotificationService service = new PushNotificationService();
-    	service.send("leaf.prod.app", "...", "Text");
+    	// TODO: need a better code to send message.
+    	// PushNotificationService service = new PushNotificationService();
+    	// service.send("leaf.prod.app", "...", "Text");
     	
         return new Greeting(counter.incrementAndGet(),
                             String.format(template, name));

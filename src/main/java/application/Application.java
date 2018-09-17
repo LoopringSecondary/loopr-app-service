@@ -31,18 +31,18 @@ public class Application {
     }
     
     private static void prepareAPNSCertificates() {
-    	File dest = new File("./leaf.prod.app.p12");
-		
-		ClassPathResource cpr = new ClassPathResource("static/aps_certificates/leaf.prod.app.p12");
-		try {
-		    byte[] bdata = FileCopyUtils.copyToByteArray(cpr.getInputStream());		    
-		    FileCopyUtils.copy(bdata, dest);
-		    
-		    System.out.println("hello world");
-		} catch (IOException e) {
-		    e.printStackTrace();
-		    return;
-		}
-		
+    	String[] fileNames = {"leaf.prod.app.p12", "leaf.prod.app.development.p12"};
+    	for(String fileName: fileNames) {
+        	File dest = new File(String.format("./%s", fileName));
+    		ClassPathResource cpr = new ClassPathResource(String.format("static/aps_certificates/%s", fileName));
+    		try {
+    		    byte[] bdata = FileCopyUtils.copyToByteArray(cpr.getInputStream());		    
+    		    FileCopyUtils.copy(bdata, dest);
+    		    System.out.println("hello world");
+    		} catch (IOException e) {
+    		    e.printStackTrace();
+    		    return;
+    		}
+    	}
     }
 }
