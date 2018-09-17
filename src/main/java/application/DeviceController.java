@@ -25,7 +25,7 @@ public class DeviceController {
 	@RequestMapping(value = "/api/v1/devices", method = RequestMethod.POST, produces = "application/json")
     public String greeting(@RequestBody Map<String, Object> postPayload) {
 		
-		System.out.println(postPayload);
+		System.out.println("/api/v1/devices "+ postPayload);
 		
 		String address = postPayload.get("address").toString();
 		String bundleIdentifier = postPayload.get("bundleIdentifier").toString();
@@ -67,8 +67,8 @@ public class DeviceController {
     		// update new data
         	String updateSQL = String.format(
         			"UPDATE devices " +
-        			"SET is_enabled=True " +
-        			"current_language='%s'" +
+        			"SET is_enabled=True, " +
+        			"current_language='%s' " +
         			"WHERE address='%s' AND bundle_identifier='%s' AND device_token='%s' AND is_release_mode=%s",
         			currentLanguage, address, bundleIdentifier, deviceToken, isReleaseMode);
         	int row = jdbcTemplate.update(updateSQL);
