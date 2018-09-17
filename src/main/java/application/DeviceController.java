@@ -32,8 +32,8 @@ public class DeviceController {
 		String deviceToken = postPayload.get("deviceToken").toString();
 		boolean isReleaseMode = (Boolean) postPayload.get("isReleaseMode");
 		
-		// not in the request...
-		// String currentInstalledVersion = postPayload.get("currentInstalledVersion").toString();
+		String currentInstalledVersion = postPayload.get("currentInstalledVersion").toString();
+		String currentLanguage = postPayload.get("currentLanguage").toString();
 
     	JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
     	
@@ -68,8 +68,9 @@ public class DeviceController {
         	String updateSQL = String.format(
         			"UPDATE devices " +
         			"SET is_enabled=True " +
+        			"current_language='%s'" +
         			"WHERE address='%s' AND bundle_identifier='%s' AND device_token='%s' AND is_release_mode=%s",
-        			address, bundleIdentifier, deviceToken, isReleaseMode);
+        			currentLanguage, address, bundleIdentifier, deviceToken, isReleaseMode);
         	int row = jdbcTemplate.update(updateSQL);
         	System.out.println(row + " row updated.");
         	
@@ -82,14 +83,14 @@ public class DeviceController {
     	
     	// insert new data
     	String insertSQL = String.format(
-    			"INSERT INTO devices (address, bundle_identifier, device_token, is_release_mode, current_installed_version) " +
-    			"VALUES (?, ?, ?, ?, ?)");
+    			"INSERT INTO devices (address, bundle_identifier, device_token, is_release_mode, current_installed_version, current_language) " +
+    			"VALUES (?, ?, ?, ?, ?, ?)");
     	
     	// define query arguments
-    	Object[] params = new Object[] {address, bundleIdentifier, deviceToken, isReleaseMode, "0.9.9"};
+    	Object[] params = new Object[] {address, bundleIdentifier, deviceToken, isReleaseMode, currentInstalledVersion, currentLanguage};
     	
     	// define SQL types of the arguments
-    	int[] types = new int[] { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.BOOLEAN, Types.VARCHAR };
+    	int[] types = new int[] { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.BOOLEAN, Types.VARCHAR, Types.VARCHAR };
     	
     	int row = jdbcTemplate.update(insertSQL, params, types);
     	System.out.println(row + " row inserted.");

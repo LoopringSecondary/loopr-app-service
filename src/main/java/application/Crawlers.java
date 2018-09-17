@@ -235,7 +235,7 @@ public class Crawlers {
     
     public static String sendPostRequest(String requestUrl, String payload) {
         try {
-        	System.out.println("payload: " + payload);
+        	// System.out.println("payload: " + payload);
             URL url = new URL(requestUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
