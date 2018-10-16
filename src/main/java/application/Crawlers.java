@@ -42,7 +42,7 @@ public class Crawlers {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    private static final int rateInSecond = 1*60;
+    private static final int rateInSecond = 600*60;
     
     @Scheduled(fixedRate = rateInSecond*1000)
     public void pushNotificationsForSend() {
