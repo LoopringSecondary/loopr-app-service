@@ -26,7 +26,7 @@ public class UserController {
 	@RequestMapping(value = "/api/v1/users", method = RequestMethod.POST, produces = "application/json")
     public String greeting(@RequestBody Map<String, Object> postPayload) {
 		
-		System.out.println("/api/v1/users "+ postPayload);
+		System.out.println("POST /api/v1/users "+ postPayload);
 		
 		String accountToken = postPayload.get("account_token").toString();
 
@@ -78,6 +78,69 @@ public class UserController {
     	int[] types = new int[] { Types.VARCHAR};
     	
     	int row = jdbcTemplate.update(insertSQL, params, types);
+    	System.out.println(row + " row inserted.");
+    	    	
+        JSONObject response = new JSONObject();
+		response.put("success", true);
+
+        return response.toString();
+    }
+	
+	@RequestMapping(value = "/api/v1/users", method = RequestMethod.PUT, produces = "application/json")
+    public String put(@RequestBody Map<String, Object> payload) {
+		
+		System.out.println("PUT /api/v1/users "+ payload);
+		
+		// Make it flexible?
+		String accountToken = payload.get("account_token").toString();
+		String language = payload.get("language").toString();
+		String currency = payload.get("currency").toString();
+
+    	JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
+    	
+    	// Check whether it exists.
+    	String selectSQL = String.format(
+    			"SELECT * " +
+    			"FROM users " +
+    			"WHERE account_token='%s'",
+    			accountToken);
+    	
+    	List<JSONObject> items = jdbcTemplate.query(
+    			selectSQL,
+    			new RowMapper<JSONObject>() {
+                    @Override
+                    public JSONObject mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    	JSONObject item = new JSONObject();
+
+						ResultSetMetaData rsmd = rs.getMetaData();
+						int numColumns = rsmd.getColumnCount();
+						for (int i=1; i<=numColumns; i++) {
+							String column_name = rsmd.getColumnName(i);
+							item.put(column_name, rs.getObject(column_name));
+						}
+						
+						return item;
+                    }
+    			}
+    	);
+    	
+    	if(items.size() != 1) {
+    		System.out.println("no data");
+    		JSONObject response = new JSONObject();
+    		response.put("success", false);
+    		response.put("message", "no account token");
+    		return response.toString();
+    	}
+
+    	
+    	// insert new data    	 
+    	String insertSQL = String.format(
+    			"UPDATE users " +
+    			"SET language='%s', currency='%s', updated_at=NOW() " +
+    			"WHERE account_token='%s'",
+    			language, currency, accountToken);
+
+    	int row = jdbcTemplate.update(insertSQL);
     	System.out.println(row + " row inserted.");
     	    	
         JSONObject response = new JSONObject();
