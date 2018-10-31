@@ -58,12 +58,10 @@ public class UserController {
     			}
     	);
     	
-    	if(items.size() > 0) {
-    		System.out.println("data exists");
-    		JSONObject response = new JSONObject();
-    		response.put("success", false);
-    		response.put("message", "duplicated account token");
-    		return response.toString();
+    	// Update if exists
+    	if(items.size() == 1) {
+    		System.out.println("Update users");
+    		return put(postPayload);
     	}
  
     	// insert new data
@@ -150,7 +148,7 @@ public class UserController {
     }
 	
 	@RequestMapping(value = "/api/v1/users", method = RequestMethod.GET, produces = "application/json")
-    public String greeting(@RequestParam("account_token") Optional<String> accountToken) {
+    public String greeting(@RequestParam("account_token") String accountToken) {
     	
     	JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
     	
@@ -158,7 +156,11 @@ public class UserController {
     	
     	String sql = String.format(
     			"SELECT * " +
-    			"FROM users");
+    			"FROM users " +
+    			"WHERE account_token='%s'",
+    			accountToken);
+    	
+    	System.out.println(sql);
     	
     	List<JSONObject> items = jdbcTemplate.query(
     			sql,
