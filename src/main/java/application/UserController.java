@@ -87,7 +87,7 @@ public class UserController {
     		
         	String insertSQL = String.format(
         			"UPDATE users " +
-        			"SET language=?, currency=?, lrc_fee_ratio=?, updated_at=NOW() " +
+        			"SET language=?, currency=?, lrc_fee_ratio=?, deleted=False, updated_at=NOW() " +
         			"WHERE account_token=?");
 
         	// define query arguments
@@ -107,10 +107,7 @@ public class UserController {
         			"INSERT INTO users (account_token, language, currency, lrc_fee_ratio) " +
         			"VALUES (?, ?, ?, ?)");
         	
-        	// define query arguments
         	Object[] params = new Object[] {accountToken, language, currency, lrcFeeRatio};
-        	
-        	// define SQL types of the arguments
         	int[] types = new int[] { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.DOUBLE};
         	
         	int row = jdbcTemplate.update(insertSQL, params, types);
@@ -134,7 +131,7 @@ public class UserController {
     	String sql = String.format(
     			"SELECT * " +
     			"FROM users " +
-    			"WHERE account_token='%s'",
+    			"WHERE account_token='%s' AND deleted=False",
     			accountToken);
     	
     	System.out.println(sql);
@@ -169,6 +166,76 @@ public class UserController {
     	return items.get(0).toString();
     }
 
-	
-	
+	@RequestMapping(value = "/api/v1/users", method = RequestMethod.DELETE, produces = "application/json")
+    public String delete(@RequestBody Map<String, Object> payload) {
+    	    	
+    	System.out.println("DELETE /api/v1/users "+ payload);
+    	
+    	String accountToken;
+		if (payload.containsKey("account_token")) {
+			accountToken = payload.get("account_token").toString();
+		} else {
+			JSONObject response = new JSONObject();
+			response.put("success", false);
+    		response.put("message", "no account token");
+    		return response.toString();
+		}
+    	
+    	JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
+    	
+    	// Check whether it exists.
+    	String selectSQL = String.format(
+    			"SELECT * " +
+    			"FROM users " +
+    			"WHERE account_token='%s'",
+    			accountToken);
+    	
+    	List<JSONObject> items = jdbcTemplate.query(
+    			selectSQL,
+    			new RowMapper<JSONObject>() {
+                    @Override
+                    public JSONObject mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    	JSONObject item = new JSONObject();
+
+						ResultSetMetaData rsmd = rs.getMetaData();
+						int numColumns = rsmd.getColumnCount();
+						for (int i=1; i<=numColumns; i++) {
+							String column_name = rsmd.getColumnName(i);
+							item.put(column_name, rs.getObject(column_name));
+						}
+						
+						return item;
+                    }
+    			}
+    	);
+    	
+    	// Update if exists
+    	if(items.size() > 0) {
+    		System.out.println("Update users");
+    		// insert new data
+    		
+        	String insertSQL = String.format(
+        			"UPDATE users " +
+        			"SET deleted=True, updated_at=NOW() " +
+        			"WHERE account_token=?");
+
+        	// define query arguments
+        	Object[] params = new Object[] {accountToken};
+        	int[] types = new int[] {Types.VARCHAR};
+
+        	int row = jdbcTemplate.update(insertSQL, params, types);
+        	System.out.println(row + " row updated.");
+
+            JSONObject response = new JSONObject();
+    		response.put("success", true);
+            return response.toString();
+    	} else {
+    		System.out.println("no data");
+    		JSONObject response = new JSONObject();
+    		response.put("success", false);
+    		response.put("message", "no account token");
+    		return response.toString();    		
+    	}
+    }
+		
 }
