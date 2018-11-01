@@ -64,36 +64,23 @@ Response
 ```
 
 
-Get app versions
-[http://loopring-env.aqtsrpazpa.ap-northeast-1.elasticbeanstalk.com/api/v1/app_versions](http://loopring-env.aqtsrpazpa.ap-northeast-1.elasticbeanstalk.com/api/v1/app_versions)
+### GET app versions
+```
+curl -X GET \
+  http://www.loopring.mobi/api/v1/app_versions 
+```
 
 ```
 {
-    "count": 3,
+    "count": 1,
     "app_versions": [
         {
-            "updated_at": "2018-07-13 08:24:22.790371",
+            "updated_at": "2018-10-30 16:11:50.849532",
             "must_update": false,
-            "created_at": "2018-07-13 08:24:22.790371",
-            "description": "Wallet management is ready.",
-            "id": 1,
-            "version": "0.0.1"
-        },
-        {
-            "updated_at": "2018-07-13 08:24:36.402759",
-            "must_update": false,
-            "created_at": "2018-07-13 08:24:36.402759",
-            "description": "Market is ready.",
-            "id": 2,
-            "version": "0.0.2"
-        },
-        {
-            "updated_at": "2018-07-13 08:24:52.587705",
-            "must_update": false,
-            "created_at": "2018-07-13 08:24:52.587705",
-            "description": "You can trade tokens now.",
-            "id": 3,
-            "version": "0.0.3"
+            "created_at": "2018-10-30 16:11:50.849532",
+            "description": "New version",
+            "id": 7,
+            "version": "0.9.15"
         }
     ]
 }
