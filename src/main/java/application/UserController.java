@@ -7,12 +7,9 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,11 +23,29 @@ public class UserController {
 	@RequestMapping(value = "/api/v1/users", method = RequestMethod.POST, produces = "application/json")
     public String post(@RequestBody Map<String, Object> postPayload) {
 		
-		System.out.println("POST /api/v1/users "+ postPayload);		
-		String accountToken = postPayload.get("account_token").toString();
-		String language = postPayload.get("language").toString();
-		String currency = postPayload.get("currency").toString();
-		Double lrcRatioFee = (Double) postPayload.get("lrc_ratio_fee");
+		System.out.println("POST /api/v1/users "+ postPayload);
+		
+		String accountToken;
+		if (postPayload.containsKey("account_token")) {
+			accountToken = postPayload.get("account_token").toString();
+		} else {
+			return "";
+		}
+		
+		String language = null;
+		if (postPayload.containsKey("language")) {
+			language = postPayload.get("language").toString();
+		}
+		
+		String currency = null;
+		if (postPayload.containsKey("currency")) {
+			currency = postPayload.get("currency").toString();
+		}
+
+		Double lrcRatioFee = null;
+		if (postPayload.containsKey("lrc_ratio_fee")) {
+			lrcRatioFee = (Double) postPayload.get("lrc_ratio_fee");
+		}
 
 		System.out.println("Verified params");
 		
@@ -65,39 +80,44 @@ public class UserController {
     	// Update if exists
     	if(items.size() == 1) {
     		System.out.println("Update users");
-    		// insert new data    	 
+    		// insert new data
+    		
         	String insertSQL = String.format(
         			"UPDATE users " +
-        			"SET language='%s', currency='%s', lrc_ratio_fee='%s', updated_at=NOW() " +
-        			"WHERE account_token='%s'",
-        			language, currency, accountToken, lrcRatioFee);
+        			"SET language=?, currency=?, lrc_ratio_fee=?, updated_at=NOW() " +
+        			"WHERE account_token=?");
 
-        	int row = jdbcTemplate.update(insertSQL);
-        	System.out.println("row updated.");
+        	// define query arguments
+        	Object[] params = new Object[] {language, currency, lrcRatioFee, accountToken};
+        	int[] types = new int[] {Types.VARCHAR, Types.VARCHAR, Types.DOUBLE, Types.VARCHAR};
+
+        	int row = jdbcTemplate.update(insertSQL, params, types);
+        	System.out.println(row + " row updated.");
 
             JSONObject response = new JSONObject();
     		response.put("success", true);
             return response.toString();
-    	}
- 
-    	// insert new data
-    	String insertSQL = String.format(
-    			"INSERT INTO users (account_token) " +
-    			"VALUES (?, ?, ?, ?)");
-    	
-    	// define query arguments
-    	Object[] params = new Object[] {accountToken, language, currency, lrcRatioFee};
-    	
-    	// define SQL types of the arguments
-    	int[] types = new int[] { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.DOUBLE};
-    	
-    	int row = jdbcTemplate.update(insertSQL, params, types);
-    	System.out.println(row + " row inserted.");
-    	    	
-        JSONObject response = new JSONObject();
-		response.put("success", true);
 
-        return response.toString();
+    	} else {
+        	// insert new data
+        	String insertSQL = String.format(
+        			"INSERT INTO users (account_token) " +
+        			"VALUES (?, ?, ?, ?)");
+        	
+        	// define query arguments
+        	Object[] params = new Object[] {accountToken, language, currency, lrcRatioFee};
+        	
+        	// define SQL types of the arguments
+        	int[] types = new int[] { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.DOUBLE};
+        	
+        	int row = jdbcTemplate.update(insertSQL, params, types);
+        	System.out.println(row + " row inserted.");
+        	    	
+            JSONObject response = new JSONObject();
+    		response.put("success", true);
+
+            return response.toString();    		
+    	}
     }
 
 	
@@ -145,5 +165,5 @@ public class UserController {
     	
     	return items.get(0).toString();
     }
-	
+
 }
