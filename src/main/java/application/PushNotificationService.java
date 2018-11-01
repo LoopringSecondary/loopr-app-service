@@ -70,7 +70,9 @@ public class PushNotificationService {
     		String deviceToken  = item.getString("device_token");
     		Boolean isReleaseMode = item.getBoolean("is_release_mode");
     		PushNotificationService service = new PushNotificationService();
-    		service.send(bundleIdentifier, deviceToken, isReleaseMode, alertBody);
+    		
+    		// Disable due to the device token is not found in the released app.
+    		// service.send(bundleIdentifier, deviceToken, isReleaseMode, alertBody);
     	}
 	}
 
