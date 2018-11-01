@@ -13,6 +13,7 @@ curl -X GET \
 ```
 Response
 ```
+// If exist
 {
     "deleted": false,
     "updated_at": "2018-10-31 22:36:18.803871",
@@ -24,10 +25,15 @@ Response
     "id": 4,
     "config": "{}"
 }
+
+// If no exist
+{
+    "success": false,
+    "message": "no account token"
+}
 ```
 
 ### POST user config
-
 ```
 curl -X POST \
   https://www.loopring.mobi/api/v1/users \
