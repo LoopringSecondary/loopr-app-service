@@ -29,7 +29,10 @@ public class UserController {
 		if (postPayload.containsKey("account_token")) {
 			accountToken = postPayload.get("account_token").toString();
 		} else {
-			return "";
+			JSONObject response = new JSONObject();
+			response.put("success", false);
+    		response.put("message", "no account token");
+    		return response.toString();
 		}
 		
 		String language = null;
@@ -42,9 +45,9 @@ public class UserController {
 			currency = postPayload.get("currency").toString();
 		}
 
-		Double lrcRatioFee = null;
-		if (postPayload.containsKey("lrc_ratio_fee")) {
-			lrcRatioFee = (Double) postPayload.get("lrc_ratio_fee");
+		Double lrcFeeRatio = null;
+		if (postPayload.containsKey("lrc_fee_ratio")) {
+			lrcFeeRatio = (Double) postPayload.get("lrc_fee_ratio");
 		}
 
 		System.out.println("Verified params");
@@ -84,11 +87,11 @@ public class UserController {
     		
         	String insertSQL = String.format(
         			"UPDATE users " +
-        			"SET language=?, currency=?, lrc_ratio_fee=?, updated_at=NOW() " +
+        			"SET language=?, currency=?, lrc_fee_ratio=?, updated_at=NOW() " +
         			"WHERE account_token=?");
 
         	// define query arguments
-        	Object[] params = new Object[] {language, currency, lrcRatioFee, accountToken};
+        	Object[] params = new Object[] {language, currency, lrcFeeRatio, accountToken};
         	int[] types = new int[] {Types.VARCHAR, Types.VARCHAR, Types.DOUBLE, Types.VARCHAR};
 
         	int row = jdbcTemplate.update(insertSQL, params, types);
@@ -101,11 +104,11 @@ public class UserController {
     	} else {
         	// insert new data
         	String insertSQL = String.format(
-        			"INSERT INTO users (account_token) " +
+        			"INSERT INTO users (account_token, language, currency, lrc_fee_ratio) " +
         			"VALUES (?, ?, ?, ?)");
         	
         	// define query arguments
-        	Object[] params = new Object[] {accountToken, language, currency, lrcRatioFee};
+        	Object[] params = new Object[] {accountToken, language, currency, lrcFeeRatio};
         	
         	// define SQL types of the arguments
         	int[] types = new int[] { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.DOUBLE};
@@ -166,4 +169,6 @@ public class UserController {
     	return items.get(0).toString();
     }
 
+	
+	
 }
