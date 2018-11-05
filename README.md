@@ -43,7 +43,7 @@ curl -X POST \
 	"language": "zh-Hans",
 	"currency": "USD",
 	"lrc_fee_ratio": 0.00231,
-	"config": "{\"phonetype\":\"N95\",\"cat\":\"WP\"}"
+	"config": "{\"phonetype\":\"N95\",\"cat\":\"WP\"}"  // json string. You need to cast JSON to json string.
 }'
 ```
 
