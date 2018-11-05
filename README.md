@@ -34,6 +34,7 @@ Response
 ```
 
 ### POST user config
+We don't support PUT method. If you want to update a config of an account_token, please also use POST method. The config will be updated.
 ```
 curl -X POST \
   https://www.loopring.mobi/api/v1/users \
