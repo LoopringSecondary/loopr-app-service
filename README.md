@@ -23,7 +23,7 @@ Response
     "language": "zh-hans",
     "currency": "usd",
     "id": 4,
-    "config": "{}"
+    "config": "{\"wallet1\":\"95\",\"cat\":\"WP\"}"  // json string. You need to parse the string to JSON
 }
 
 // If no exist
@@ -42,7 +42,8 @@ curl -X POST \
 	"account_token": "12345611",
 	"language": "zh-Hans",
 	"currency": "USD",
-	"lrc_fee_ratio": 0.002
+	"lrc_fee_ratio": 0.00231,
+	"config": "{\"phonetype\":\"N95\",\"cat\":\"WP\"}"
 }'
 ```
 

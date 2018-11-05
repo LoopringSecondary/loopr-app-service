@@ -21,12 +21,14 @@ import rds.DatabaseConnection;
 public class UserController {
 
 	@RequestMapping(value = "/api/v1/users", method = RequestMethod.POST, produces = "application/json")
-    public String post(@RequestBody Map<String, Object> postPayload) {
+    public String post(@RequestBody String postPayloadString) {
+		
+		JSONObject postPayload = new JSONObject(postPayloadString);
 		
 		System.out.println("POST /api/v1/users "+ postPayload);
 		
 		String accountToken;
-		if (postPayload.containsKey("account_token")) {
+		if (postPayload.has("account_token")) {
 			accountToken = postPayload.get("account_token").toString();
 		} else {
 			JSONObject response = new JSONObject();
@@ -36,18 +38,25 @@ public class UserController {
 		}
 		
 		String language = null;
-		if (postPayload.containsKey("language")) {
+		if (postPayload.has("language")) {
 			language = postPayload.get("language").toString();
 		}
 		
 		String currency = null;
-		if (postPayload.containsKey("currency")) {
+		if (postPayload.has("currency")) {
 			currency = postPayload.get("currency").toString();
 		}
 
 		Double lrcFeeRatio = null;
-		if (postPayload.containsKey("lrc_fee_ratio")) {
+		if (postPayload.has("lrc_fee_ratio")) {
 			lrcFeeRatio = (Double) postPayload.get("lrc_fee_ratio");
+		}
+		
+		// Key is config, however it will be stored into config_json_string
+		String configString = null;
+		if (postPayload.has("config")) {
+			configString = postPayload.get("config").toString();
+			System.out.println("Config: " + configString);
 		}
 
 		System.out.println("Verified params");
@@ -87,12 +96,12 @@ public class UserController {
     		
         	String insertSQL = String.format(
         			"UPDATE users " +
-        			"SET language=?, currency=?, lrc_fee_ratio=?, deleted=False, updated_at=NOW() " +
+        			"SET language=?, currency=?, lrc_fee_ratio=?, config_json_string=?, deleted=False, updated_at=NOW()" +
         			"WHERE account_token=?");
 
         	// define query arguments
-        	Object[] params = new Object[] {language, currency, lrcFeeRatio, accountToken};
-        	int[] types = new int[] {Types.VARCHAR, Types.VARCHAR, Types.DOUBLE, Types.VARCHAR};
+        	Object[] params = new Object[] {language, currency, lrcFeeRatio, configString, accountToken};
+        	int[] types = new int[] {Types.VARCHAR, Types.VARCHAR, Types.DOUBLE, Types.VARCHAR, Types.VARCHAR};
 
         	int row = jdbcTemplate.update(insertSQL, params, types);
         	System.out.println(row + " row updated.");
@@ -163,7 +172,16 @@ public class UserController {
     		return response.toString();
     	}
     	
-    	return items.get(0).toString();
+    	JSONObject item = items.get(0);
+    	// Keep config_json_string
+    	if (item.has("config_json_string")) {
+    		item.put("config", item.get("config_json_string"));
+    	} else {
+    		item.remove("config");
+    	}
+    	item.remove("config_json_string");
+    	
+    	return item.toString();
     }
 
 	@RequestMapping(value = "/api/v1/users", method = RequestMethod.DELETE, produces = "application/json")
