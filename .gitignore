@@ -30,7 +30,9 @@ build/**
 
 **/.DS_Store
 /bin/
+.idea/**
 /target/
+/out/**
 
 # no apns certificates
-*.p12
+.p12
