@@ -70,7 +70,7 @@ public class DeviceController {
         }
 
         // insert new data
-        String insertSQL = String.format("INSERT INTO devices (address, bundle_identifier, device_token, is_release_mode, current_installed_version, current_language) " + "VALUES (?, ?, ?, ?, ?, ?)");
+        String insertSQL = String.format("INSERT INTO tbl_devices (address, bundle_identifier, device_token, is_release_mode, current_installed_version, current_language) " + "VALUES (?, ?, ?, ?, ?, ?)");
 
         // define query arguments
         Object[] params = new Object[]{address, bundleIdentifier, deviceToken, isReleaseMode, currentInstalledVersion, currentLanguage};
@@ -95,7 +95,7 @@ public class DeviceController {
 
         // TODO: not need to check if it exists.
         // Check whether it exists.
-        String selectSQL = String.format("SELECT * " + "FROM devices " + "WHERE device_token='%s' AND address='%s'", deviceToken, address);
+        String selectSQL = String.format("SELECT * " + "FROM tbl_devices " + "WHERE device_token='%s' AND address='%s'", deviceToken, address);
 
         List<JSONObject> items = jdbcTemplate.query(selectSQL, new RowMapper<JSONObject>() {
             @Override
@@ -118,7 +118,7 @@ public class DeviceController {
             System.out.println("data exists");
 
             // update new data
-            String updateSQL = String.format("UPDATE devices SET is_enabled=False " + "WHERE device_token='%s' AND address='%s'", deviceToken, address);
+            String updateSQL = String.format("UPDATE tbl_devices SET is_enabled=False " + "WHERE device_token='%s' AND address='%s'", deviceToken, address);
             int row = jdbcTemplate.update(updateSQL);
             System.out.println(row + " row updated.");
 

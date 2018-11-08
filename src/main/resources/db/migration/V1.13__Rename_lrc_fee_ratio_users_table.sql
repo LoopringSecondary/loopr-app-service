@@ -1,1 +1,0 @@
-ALTER TABLE users RENAME lrc_ratio_fee TO lrc_fee_ratio;

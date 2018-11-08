@@ -25,7 +25,6 @@ public class UserController {
     public String post(@RequestBody String postPayloadString) {
 
         JSONObject postPayload = new JSONObject(postPayloadString);
-
         System.out.println("POST /api/v1/users " + postPayload);
 
         String accountToken;
@@ -39,10 +38,10 @@ public class UserController {
         }
 
         // Key is config, however it will be stored into config_json_string
-        String configString = null;
+        String config = null;
         if (postPayload.has("config")) {
-            configString = postPayload.get("config").toString();
-            System.out.println("Config: " + configString);
+            config = postPayload.get("config").toString();
+            System.out.println("Config: " + config);
         }
 
         System.out.println("Verified params");
@@ -50,35 +49,29 @@ public class UserController {
         JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
 
         // Check whether it exists.
-        String selectSQL = String.format("SELECT * " + "FROM users " + "WHERE account_token='%s'", accountToken);
+        String selectSQL = String.format("SELECT * " + "FROM tbl_users " + "WHERE account_token='%s'", accountToken);
 
-        List<JSONObject> items = jdbcTemplate.query(selectSQL, new RowMapper<JSONObject>() {
-            @Override
-            public JSONObject mapRow(ResultSet rs, int rowNum) throws SQLException {
-
-                JSONObject item = new JSONObject();
-
-                ResultSetMetaData rsmd = rs.getMetaData();
-                int numColumns = rsmd.getColumnCount();
-                for (int i = 1; i <= numColumns; i++) {
-                    String column_name = rsmd.getColumnName(i);
-                    item.put(column_name, rs.getObject(column_name));
-                }
-
-                return item;
+        List<JSONObject> items = jdbcTemplate.query(selectSQL, (rs, rowNum) -> {
+            JSONObject item = new JSONObject();
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int numColumns = rsmd.getColumnCount();
+            for (int i = 1; i <= numColumns; i++) {
+                String column_name = rsmd.getColumnName(i);
+                item.put(column_name, rs.getObject(column_name));
             }
+            return item;
         });
 
         // Update if exists
         if (items.size() == 1) {
-            System.out.println("Update users");
+            System.out.println("Update tbl_users");
             // insert new data
 
-            String insertSQL = String.format("UPDATE users " + "SET config_json_string=?, deleted=False, updated_at=NOW()" + "WHERE account_token=?");
+            String insertSQL = String.format("UPDATE tbl_users SET config=?, is_deleted=False, updated_at=NOW() WHERE account_token=?");
 
             // define query arguments
-            Object[] params = new Object[]{configString, accountToken};
-            int[] types = new int[]{Types.VARCHAR, Types.VARCHAR, Types.DOUBLE, Types.VARCHAR, Types.VARCHAR};
+            Object[] params = new Object[]{config, accountToken};
+            int[] types = new int[]{Types.VARCHAR, Types.VARCHAR};
 
             int row = jdbcTemplate.update(insertSQL, params, types);
             System.out.println(row + " row updated.");
@@ -89,17 +82,13 @@ public class UserController {
 
         } else {
             // insert new data
-            String insertSQL = String.format("INSERT INTO users (account_token) " + "VALUES (?)");
-
-            Object[] params = new Object[]{accountToken};
-            int[] types = new int[]{Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.DOUBLE};
-
+            String insertSQL = String.format("INSERT INTO tbl_users (config, account_token) " + "VALUES (?,?)");
+            Object[] params = new Object[]{config, accountToken};
+            int[] types = new int[]{Types.VARCHAR, Types.VARCHAR};
             int row = jdbcTemplate.update(insertSQL, params, types);
             System.out.println(row + " row inserted.");
-
             JSONObject response = new JSONObject();
             response.put("success", true);
-
             return response.toString();
         }
     }
@@ -111,25 +100,19 @@ public class UserController {
 
         System.out.println("account_token: " + accountToken);
 
-        String sql = String.format("SELECT * " + "FROM users " + "WHERE account_token='%s' AND deleted=False", accountToken);
+        String sql = String.format("SELECT * " + "FROM tbl_users " + "WHERE account_token='%s' AND is_deleted=False", accountToken);
 
         System.out.println(sql);
 
-        List<JSONObject> items = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
-            @Override
-            public JSONObject mapRow(ResultSet rs, int rowNum) throws SQLException {
-
-                JSONObject item = new JSONObject();
-
-                ResultSetMetaData rsmd = rs.getMetaData();
-                int numColumns = rsmd.getColumnCount();
-                for (int i = 1; i <= numColumns; i++) {
-                    String column_name = rsmd.getColumnName(i);
-                    item.put(column_name, rs.getObject(column_name));
-                }
-
-                return item;
+        List<JSONObject> items = jdbcTemplate.query(sql, (rs, rowNum) -> {
+            JSONObject item = new JSONObject();
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int numColumns = rsmd.getColumnCount();
+            for (int i = 1; i <= numColumns; i++) {
+                String column_name = rsmd.getColumnName(i);
+                item.put(column_name, rs.getObject(column_name));
             }
+            return item;
         });
 
         if (items.size() != 1) {
@@ -142,14 +125,15 @@ public class UserController {
 
         JSONObject item = items.get(0);
         // Keep config_json_string
-        if (item.has("config_json_string")) {
-            item.put("config", item.get("config_json_string"));
+        if (item.has("config")) {
+            item.put("config", item.get("config"));
         } else {
             item.remove("config");
         }
-        item.remove("config_json_string");
-
-        return item.toString();
+        JSONObject response = new JSONObject();
+        response.put("success", true);
+        response.put("message", item.toString());
+        return response.toString();
     }
 
     @RequestMapping(value = "/api/v1/users", method = RequestMethod.DELETE, produces = "application/json")
@@ -170,39 +154,35 @@ public class UserController {
         JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
 
         // Check whether it exists.
-        String selectSQL = String.format("SELECT * " + "FROM users " + "WHERE account_token='%s'", accountToken);
+        String selectSQL = String.format("SELECT * " + "FROM tbl_users " + "WHERE account_token='%s'", accountToken);
 
         List<JSONObject> items = jdbcTemplate.query(selectSQL, new RowMapper<JSONObject>() {
             @Override
             public JSONObject mapRow(ResultSet rs, int rowNum) throws SQLException {
 
                 JSONObject item = new JSONObject();
-
                 ResultSetMetaData rsmd = rs.getMetaData();
                 int numColumns = rsmd.getColumnCount();
                 for (int i = 1; i <= numColumns; i++) {
                     String column_name = rsmd.getColumnName(i);
                     item.put(column_name, rs.getObject(column_name));
                 }
-
                 return item;
             }
         });
 
         // Update if exists
         if (items.size() > 0) {
-            System.out.println("Update users");
+            System.out.println("Update tbl_users");
             // insert new data
 
-            String insertSQL = String.format("UPDATE users " + "SET deleted=True, updated_at=NOW() " + "WHERE account_token=?");
+            String insertSQL = String.format("UPDATE tbl_users " + "SET is_deleted=True, updated_at=NOW() " + "WHERE account_token=?");
 
             // define query arguments
             Object[] params = new Object[]{accountToken};
             int[] types = new int[]{Types.VARCHAR};
-
             int row = jdbcTemplate.update(insertSQL, params, types);
             System.out.println(row + " row updated.");
-
             JSONObject response = new JSONObject();
             response.put("success", true);
             return response.toString();

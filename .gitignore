@@ -35,4 +35,4 @@ build/**
 /out/**
 
 # no apns certificates
-.p12
+*.p12

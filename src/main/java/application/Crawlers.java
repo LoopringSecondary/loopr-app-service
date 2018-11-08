@@ -6,9 +6,7 @@ import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -23,7 +21,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -224,23 +221,17 @@ public class Crawlers {
         System.out.println("Current time: " + now.toString());
 
         JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
-        String selectSQL = String.format("SELECT address " + "FROM devices " + "WHERE is_enabled=True AND bundle_identifier='%s'", "leaf.prod.app");
+        String selectSQL = String.format("SELECT address " + "FROM tbl_devices " + "WHERE is_enabled=True AND bundle_identifier='%s'", "leaf.prod.app");
 
-        List<JSONObject> items = jdbcTemplate.query(selectSQL, new RowMapper<JSONObject>() {
-            @Override
-            public JSONObject mapRow(ResultSet rs, int rowNum) throws SQLException {
-
-                JSONObject item = new JSONObject();
-
-                ResultSetMetaData rsmd = rs.getMetaData();
-                int numColumns = rsmd.getColumnCount();
-                for (int i = 1; i <= numColumns; i++) {
-                    String column_name = rsmd.getColumnName(i);
-                    item.put(column_name, rs.getObject(column_name));
-                }
-
-                return item;
+        List<JSONObject> items = jdbcTemplate.query(selectSQL, (rs, rowNum) -> {
+            JSONObject item = new JSONObject();
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int numColumns = rsmd.getColumnCount();
+            for (int i = 1; i <= numColumns; i++) {
+                String column_name = rsmd.getColumnName(i);
+                item.put(column_name, rs.getObject(column_name));
             }
+            return item;
         });
 
         for (JSONObject item : items) {

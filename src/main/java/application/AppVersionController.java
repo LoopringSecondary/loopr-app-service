@@ -22,7 +22,7 @@ public class AppVersionController {
 
         JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
 
-        String sql = String.format("SELECT * " + "FROM app_versions");
+        String sql = String.format("SELECT * " + "FROM tbl_app_versions");
 
         List<JSONObject> items = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
             @Override
