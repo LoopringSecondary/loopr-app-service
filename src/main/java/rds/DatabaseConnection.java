@@ -6,9 +6,6 @@ import org.flywaydb.core.Flyway;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
-import lombok.extern.java.Log;
-
-@Log
 public class DatabaseConnection {
 
     private static String RDS_HOSTNAME = "";
@@ -29,11 +26,11 @@ public class DatabaseConnection {
         Map<String, String> env = System.getenv();
 
 //      Get RDS info from environment variables
-        RDS_HOSTNAME = "127.0.0.1";
-        RDS_PORT = "3306";
-        RDS_DB_NAME = "app";
-        RDS_USERNAME = "root";
-        RDS_PASSWORD = "root";
+        RDS_HOSTNAME = env.get("RDS_HOSTNAME");
+        RDS_PORT = env.get("RDS_PORT");
+        RDS_DB_NAME = env.get("RDS_DB_NAME");
+        RDS_USERNAME = env.get("RDS_USERNAME");
+        RDS_PASSWORD = env.get("RDS_PASSWORD");
 
         if (RDS_HOSTNAME.length() == 0 || RDS_PORT.length() == 0 || RDS_DB_NAME.length() == 0 || RDS_USERNAME.length() == 0 || RDS_PASSWORD
                 .length() == 0) {
@@ -47,8 +44,6 @@ public class DatabaseConnection {
         System.out.println("RDS_USERNAME   : " + RDS_USERNAME);
         System.out.println("RDS_PASSWORD   : " + RDS_PASSWORD);
         System.out.println(" ");
-
-        log.info("sdfsfs");
 
         // Update dataSource
         dataSource.setDriverClass(com.mysql.jdbc.Driver.class);
