@@ -46,7 +46,7 @@ public class DatabaseConnection {
         System.out.println(" ");
 
         // Update dataSource
-        dataSource.setDriverClass(com.mysql.jdbc.Driver.class);
+        dataSource.setDriverClass(com.mysql.cj.jdbc.Driver.class);
         dataSource.setUrl("jdbc:mysql://" + RDS_HOSTNAME + ":" + RDS_PORT + "/" + RDS_DB_NAME);
         dataSource.setUsername(RDS_USERNAME);
         dataSource.setPassword(RDS_PASSWORD);
