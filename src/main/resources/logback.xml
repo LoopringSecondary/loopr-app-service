@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-  <!-- 控制台输出日志 -->
-  <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder charset="UTF-8">
-      <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{26} - %msg%n</Pattern>
-    </encoder>
-  </appender>
+    <!-- 控制台输出日志 -->
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder charset="UTF-8">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{26} - %msg%n</Pattern>
+        </encoder>
+    </appender>
 
-  <!-- 文件输出日志 (文件大小策略进行文件输出，超过指定大小对文件备份) -->
-  <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <File>logs/loopring.log</File>
-    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <fileNamePattern>logs/loopring_%i.bak</fileNamePattern>
-      <minIndex>1</minIndex>
-      <maxIndex>5</maxIndex>
-    </rollingPolicy>
-    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-      <maxFileSize>2MB</maxFileSize>
-    </triggeringPolicy>
-    <encoder charset="UTF-8">
-      <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{26} - %msg%n</Pattern>
-    </encoder>
-  </appender>
+    <!-- 文件输出日志 (文件大小策略进行文件输出，超过指定大小对文件备份) -->
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>logs/loopring.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>logs/loopring_%i.bak</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>2MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder charset="UTF-8">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{26} - %msg%n</Pattern>
+        </encoder>
+    </appender>
 
-  <logger name="org.loopring.mobi" level="DEBUG" />
+    <logger name="org.loopring.mobi" level="DEBUG"/>
 
-  <!-- to view SQL statements, change to DEBUG -->
-  <logger name="org.hibernate.SQL" level="WARN" />
+    <!-- to view SQL statements, change to DEBUG -->
+    <logger name="org.hibernate.SQL" level="WARN"/>
 
-  <logger name="org.springframework" level="WARN" />
-  <logger name="org.springframework.transaction" level="WARN" />
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.springframework.transaction" level="WARN"/>
 
-  <root level="INFO">
-    <appender-ref ref="stdout" />
-    <appender-ref ref="file" />
-  </root>
+    <root level="INFO">
+        <appender-ref ref="stdout"/>
+        <appender-ref ref="file"/>
+    </root>
 </configuration>

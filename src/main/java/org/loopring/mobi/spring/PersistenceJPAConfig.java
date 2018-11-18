@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@PropertySource({ "classpath:persistence.properties" })
+@PropertySource({"classpath:persistence.properties"})
 @ComponentScan({"org.loopring.mobi.persistence"})
 @EnableJpaRepositories(basePackages = "org.loopring.mobi.persistence.repo")
 public class PersistenceJPAConfig {
@@ -33,10 +33,9 @@ public class PersistenceJPAConfig {
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-
         final LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource());
-        em.setPackagesToScan(new String[] { "org.loopring.mobi.persistence.model" });
+        em.setPackagesToScan(new String[]{"org.loopring.mobi.persistence.model"});
         final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
         em.setJpaProperties(additionalProperties());
@@ -45,7 +44,6 @@ public class PersistenceJPAConfig {
 
     @Bean
     public DataSource dataSource() {
-
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(env.getProperty("jdbc.driverClassName"));
         dataSource.setUrl(env.getProperty("jdbc.url"));
@@ -56,7 +54,6 @@ public class PersistenceJPAConfig {
 
     @Bean
     public JpaTransactionManager transactionManager() {
-
         final JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());
         return transactionManager;
@@ -64,12 +61,10 @@ public class PersistenceJPAConfig {
 
     @Bean
     public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
-
         return new PersistenceExceptionTranslationPostProcessor();
     }
 
     protected Properties additionalProperties() {
-
         final Properties hibernateProperties = new Properties();
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
         hibernateProperties.setProperty("hibernate.show_sql", env.getProperty("hibernate.show_sql"));

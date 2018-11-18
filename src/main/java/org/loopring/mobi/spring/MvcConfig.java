@@ -28,36 +28,30 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addViewControllers(final ViewControllerRegistry registry) {
-
         super.addViewControllers(registry);
         registry.addViewController("/");
     }
 
     @Override
     public void configureDefaultServletHandling(final DefaultServletHandlerConfigurer configurer) {
-
         configurer.enable();
     }
 
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
-
         registry.addResourceHandler("/resources/**").addResourceLocations("/", "/resources/");
     }
 
     @Override
     public void addInterceptors(final InterceptorRegistry registry) {
-
         final LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
         localeChangeInterceptor.setParamName("lang");
         registry.addInterceptor(localeChangeInterceptor);
     }
-
     // beans
 
     @Bean
     public LocaleResolver localeResolver() {
-
         final CookieLocaleResolver cookieLocaleResolver = new CookieLocaleResolver();
         cookieLocaleResolver.setDefaultLocale(Locale.SIMPLIFIED_CHINESE);
         return cookieLocaleResolver;
@@ -66,8 +60,6 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean(RequestContextListener.class)
     public RequestContextListener requestContextListener() {
-
         return new RequestContextListener();
     }
-
 }

@@ -9,13 +9,9 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 public class AppConfig {
 
     @Autowired
-
     // beans
-
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyPlaceHolderConfigurer() {
-
         return new PropertySourcesPlaceholderConfigurer();
     }
-
 }

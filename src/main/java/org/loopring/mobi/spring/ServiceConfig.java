@@ -6,4 +6,5 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan({"org.loopring.mobi.service"})
 public class ServiceConfig {
+
 }

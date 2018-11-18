@@ -9,5 +9,4 @@ public interface IUserService {
     void saveUser(User user);
 
     void deleteUser(User user);
-
 }
