@@ -1,44 +1,39 @@
 buildscript {
+    ext {
+        springBootVersion = '2.1.0.RELEASE'
+    }
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     }
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 
-jar {
-    baseName = 'loopring-service-backend'
-    version =  '0.1.0'
-}
+group = 'org.loopring.mobi'
+version = '0.1'
+buildDir = 'target'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
 
 repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-web"
-    compile group: 'org.json', name: 'json'
-
-    // Database
-	compile "org.springframework:spring-jdbc"
+    compile 'org.springframework.boot:spring-boot-starter-web:2.1.0.RELEASE'
+    compile 'org.aspectj:aspectjweaver:1.8.9'
+    compile 'org.springframework.data:spring-data-jpa:2.1.0.RELEASE'
+    compile "org.hibernate:hibernate-entitymanager:5.3.7.Final"
     compile "mysql:mysql-connector-java:8.0.13"
-	compile "org.flywaydb:flyway-core:5.0.2"
-
-	compile "com.turo:pushy:0.13.4"
-    compile 'log4j:log4j:1.2.17'
-
-    compileOnly 'org.projectlombok:lombok:1.18.2'
-
+    compile('org.springframework.boot:spring-boot-starter')
     testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile('com.jayway.jsonpath:json-path')
+    testCompile "junit:junit:4.12"
 }
-
