@@ -1,10 +1,10 @@
 # README #
 
-Backend for loopr iOS app.
+API service for Loopring app, which runs on AWS. Supports push notifications.
 
 ## API
 
-config only supports three params: language, currency, lrc_fee_ratio.
+config supports three params: language, currency, lrc_fee_ratio.
 
 ### GET user config by account_token
 ```
