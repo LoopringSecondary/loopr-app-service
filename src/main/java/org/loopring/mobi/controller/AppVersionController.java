@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Cooperation: loopring.org 路印协议基金会
  */
 @RestController
-@RequestMapping("/version")
+@RequestMapping("/api/version")
 public class AppVersionController {
 
     @Autowired
@@ -29,27 +29,27 @@ public class AppVersionController {
     private IAndroidVersionService androidVersionService;
 
     @ResponseBody
-    @RequestMapping(value = "/ios/new", method = RequestMethod.POST)
+    @RequestMapping(value = "/v1/ios/new", method = RequestMethod.POST)
     public ResponseResult newVersion(@RequestBody IosVersion iosVersion) {
         iosVersionService.newVersion(iosVersion);
         return ResponseResult.generateResult(true);
     }
 
     @ResponseBody
-    @RequestMapping(value = "/android/new", method = RequestMethod.POST)
+    @RequestMapping(value = "/v1/android/new", method = RequestMethod.POST)
     public ResponseResult newVersion(@RequestBody AndroidVersion androidVersion) {
         androidVersionService.newVersion(androidVersion);
         return ResponseResult.generateResult(true);
     }
 
     @ResponseBody
-    @RequestMapping(value = "/ios/getLatest")
+    @RequestMapping(value = "/v1/ios/getLatest")
     public ResponseResult getIosLatestVersion() {
         return ResponseResult.generateResult(iosVersionService.getLatestVersion());
     }
 
     @ResponseBody
-    @RequestMapping(value = "/android/getLatest")
+    @RequestMapping(value = "/v1/android/getLatest")
     public ResponseResult getAndroidLatestVersion() {
         return ResponseResult.generateResult(androidVersionService.getLatestVersion());
     }

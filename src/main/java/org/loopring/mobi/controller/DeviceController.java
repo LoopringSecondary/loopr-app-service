@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/device")
+@RequestMapping("/api/device")
 public class DeviceController {
 
     @Autowired
     private IDeviceService deviceService;
 
-    @RequestMapping(value = "/greeting", method = RequestMethod.POST, produces = "application/json")
+    @RequestMapping(value = "/v1/greeting", method = RequestMethod.POST, produces = "application/json")
     public ResponseResult greeting(@RequestBody Device device) {
         deviceService.save(device);
         return ResponseResult.generateResult(true);
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/v1/delete", method = RequestMethod.DELETE)
     public ResponseResult delete(String deviceToken, String address) {
         deviceService.delete(deviceToken, address);
         return ResponseResult.generateResult(true);
