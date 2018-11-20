@@ -16,16 +16,16 @@ import lombok.RequiredArgsConstructor;
 /**
  * Created with IntelliJ IDEA.
  * User: laiyanyan
- * Time: 2018-11-19 11:20 AM
+ * Time: 2018-11-19 4:50 PM
  * Cooperation: loopring.org 路印协议基金会
  */
-@Data
+@Entity
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Data
 @Builder
-@Entity
-@Table(name = "tbl_users")
-public class User {
+@Table(name = "tbl_android_versions")
+public class AndroidVersion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,12 +37,15 @@ public class User {
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date updatedAt;
 
-    @Column(name = "account_token", unique = true, nullable = false)
-    private String accountToken;
+    @Column(length = 128, unique = true, nullable = false)
+    private String version;
 
-    @Column(columnDefinition = "json")
-    private String config;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String description;
 
-    @Column(name = "is_deleted", nullable = false, columnDefinition = "tinyint(1) default 0")
-    private Boolean isDeleted = false;
+    @Column(name = "baidu_url", columnDefinition = "TEXT")
+    private String baiduUrl;
+
+    @Column(name = "google_url", columnDefinition = "TEXT")
+    private String googleUrl;
 }

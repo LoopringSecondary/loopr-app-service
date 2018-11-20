@@ -18,7 +18,7 @@ import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
 @Configuration
-@ComponentScan(basePackages = {"org.loopring.mobi.web"})
+@ComponentScan(basePackages = {"org.loopring.mobi.controller", "org.loopring.mobi.exception"})
 @EnableWebMvc
 public class MvcConfig extends WebMvcConfigurerAdapter {
 

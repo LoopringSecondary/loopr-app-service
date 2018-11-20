@@ -35,7 +35,10 @@ dependencies {
     compile "org.hibernate:hibernate-entitymanager:5.3.7.Final"
     compile "mysql:mysql-connector-java:8.0.13"
     compile('org.springframework.boot:spring-boot-starter')
-
+    compileOnly 'org.projectlombok:lombok:1.18.2'
+    annotationProcessor 'org.projectlombok:lombok:1.18.2'
+    compile('com.alibaba:fastjson:1.2.47')
+    compile "com.turo:pushy:0.13.4"
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile "junit:junit:4.12"
 }

@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 /**
  * Created with IntelliJ IDEA.
  * User: laiyanyan
- * Time: 2018-11-19 11:20 AM
+ * Time: 2018-11-20 3:21 PM
  * Cooperation: loopring.org 路印协议基金会
  */
 @Data
@@ -24,8 +24,8 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "tbl_users")
-public class User {
+@Table(name = "tbl_messages")
+public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,12 +37,12 @@ public class User {
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date updatedAt;
 
-    @Column(name = "account_token", unique = true, nullable = false)
-    private String accountToken;
+    @Column(name = "bundle_identifier", length = 128, nullable = false)
+    private String bundleIdentifier;
 
-    @Column(columnDefinition = "json")
-    private String config;
+    @Column(name = "device_token", nullable = false, columnDefinition = "TEXT")
+    private String deviceToken;
 
-    @Column(name = "is_deleted", nullable = false, columnDefinition = "tinyint(1) default 0")
-    private Boolean isDeleted = false;
+    @Column(name = "alert_body", nullable = false, columnDefinition = "TEXT")
+    private String alertBody;
 }
