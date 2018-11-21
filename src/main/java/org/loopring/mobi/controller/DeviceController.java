@@ -10,26 +10,26 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/device")
+@RequestMapping("/api/v1/device")
 public class DeviceController {
 
     @Autowired
     private IDeviceService deviceService;
 
-    @RequestMapping(value = "/v1/greeting", method = RequestMethod.POST, produces = "application/json")
+    @RequestMapping(value = "/greeting", method = RequestMethod.POST, produces = "application/json")
     public ResponseResult greeting(@RequestBody Device device) {
         deviceService.save(device);
         return ResponseResult.generateResult(true);
     }
 
-    @RequestMapping(value = "/v1/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public ResponseResult delete(String deviceToken, String address) {
         deviceService.delete(deviceToken, address);
         return ResponseResult.generateResult(true);
     }
     //    @RequestMapping(value = "/greeting", method = RequestMethod.POST, produces = "application/json")
     //    public String greeting(@RequestBody Map<String, Object> postPayload) {
-    //        System.out.println("/api/v1/devices " + postPayload);
+    //        System.out.println("/api/devices " + postPayload);
     //        String address = postPayload.get("address").toString();
     //        String bundleIdentifier = postPayload.get("bundleIdentifier").toString();
     //        String deviceToken = postPayload.get("deviceToken").toString();
@@ -75,7 +75,7 @@ public class DeviceController {
     //        return response.toString();
     //    }
     // deviceToken is unique in devices table
-    //    @RequestMapping(value = "/api/v1/devices/{deviceToken}/{address}", method = RequestMethod.DELETE)
+    //    @RequestMapping(value = "/api/devices/{deviceToken}/{address}", method = RequestMethod.DELETE)
     //    public String delete(@PathVariable("deviceToken") String deviceToken, @PathVariable("address") String address) {
     //        JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
     //        // TODO: not need to check if it exists.
