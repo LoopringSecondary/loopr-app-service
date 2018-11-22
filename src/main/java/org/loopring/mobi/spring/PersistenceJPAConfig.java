@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@PropertySource({"classpath:/persistence.properties", "file:/etc/loopring/persistence.properties"})
+@PropertySource(value = {"classpath:persistence.properties", "file:/etc/loopring/persistence.properties"}, ignoreResourceNotFound = true)
 @ComponentScan({"org.loopring.mobi.persistence"})
 @EnableJpaRepositories(basePackages = "org.loopring.mobi.persistence.repo")
 public class PersistenceJPAConfig {
