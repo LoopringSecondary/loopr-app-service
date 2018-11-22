@@ -29,7 +29,7 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
     @Query("update Device a set a.isEnabled = false where a.deviceToken = :deviceToken and a.address = :address")
     void delete(@Param("deviceToken") String deviceToken, @Param("address") String address);
 
-    List<Device> getAllByBundleIdentifierAndIsEnabled(String bundleIdentifier, Boolean isEnabled);
+    List<Device> findAllByBundleIdentifierAndIsEnabled(String bundleIdentifier, Boolean isEnabled);
 
-    List<Device> getAllByAddressAndIsEnabled(String address, Boolean isEnabled);
+    List<Device> findAllByAddressAndIsEnabled(String address, Boolean isEnabled);
 }

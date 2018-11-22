@@ -23,7 +23,7 @@ public class IosVersionService implements IIosVersionService {
 
     @Override
     public void newVersion(IosVersion iosVersion) {
-        IosVersion existVersion = repository.getByVersion(iosVersion.getVersion());
+        IosVersion existVersion = repository.findByVersion(iosVersion.getVersion());
         if (existVersion != null) {
             existVersion.setUri(iosVersion.getUri());
             existVersion.setDescription(iosVersion.getDescription());
@@ -35,6 +35,6 @@ public class IosVersionService implements IIosVersionService {
 
     @Override
     public IosVersion getLatestVersion() {
-        return repository.getLatestVersion();
+        return repository.findFirstByOrderByIdDesc();
     }
 }

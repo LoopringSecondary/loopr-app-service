@@ -23,7 +23,7 @@ public class AndroidVersionService implements IAndroidVersionService {
 
     @Override
     public void newVersion(AndroidVersion androidVersion) {
-        AndroidVersion existVersion = repository.getByVersion(androidVersion.getVersion());
+        AndroidVersion existVersion = repository.findByVersion(androidVersion.getVersion());
         if (existVersion != null) {
             existVersion.setBaiduUri(androidVersion.getBaiduUri());
             existVersion.setGoogleUri(androidVersion.getGoogleUri());
@@ -36,6 +36,6 @@ public class AndroidVersionService implements IAndroidVersionService {
 
     @Override
     public AndroidVersion getLatestVersion() {
-        return repository.getLatestVersion();
+        return repository.findFirstByOrderByIdDesc();
     }
 }

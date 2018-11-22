@@ -18,12 +18,12 @@ public class UserService implements IUserService {
 
     @Override
     public User getUser(String accountToken) {
-        return repository.getUserByAccountTokenAndIsDeleted(accountToken, false);
+        return repository.findUserByAccountTokenAndIsDeleted(accountToken, false);
     }
 
     @Override
     public void saveUser(User user) {
-        User existUser = repository.getUserByAccountToken(user.getAccountToken());
+        User existUser = repository.findUserByAccountToken(user.getAccountToken());
         if (existUser != null) {
             // update
             existUser.setIsDeleted(false);
@@ -37,7 +37,7 @@ public class UserService implements IUserService {
 
     @Override
     public void deleteUser(String accountToken) {
-        User user = repository.getUserByAccountTokenAndIsDeleted(accountToken, false);
+        User user = repository.findUserByAccountTokenAndIsDeleted(accountToken, false);
         if (user != null) {
             user.setIsDeleted(true);
             repository.save(user);

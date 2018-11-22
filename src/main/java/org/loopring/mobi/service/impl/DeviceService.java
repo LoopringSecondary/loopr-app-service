@@ -38,11 +38,11 @@ public class DeviceService implements IDeviceService {
 
     @Override
     public List<Device> getByBundleIdentifier(String bundleIdentifier) {
-        return repository.getAllByBundleIdentifierAndIsEnabled(bundleIdentifier, true);
+        return repository.findAllByBundleIdentifierAndIsEnabled(bundleIdentifier, true);
     }
 
     @Override
     public List<Device> getByAddress(String address) {
-        return repository.getAllByAddressAndIsEnabled(address, true);
+        return repository.findAllByAddressAndIsEnabled(address, true);
     }
 }

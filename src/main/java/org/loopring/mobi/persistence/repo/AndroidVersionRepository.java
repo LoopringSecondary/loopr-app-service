@@ -2,7 +2,6 @@ package org.loopring.mobi.persistence.repo;
 
 import org.loopring.mobi.persistence.model.AndroidVersion;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,8 +11,7 @@ import org.springframework.data.jpa.repository.Query;
  */
 public interface AndroidVersionRepository extends JpaRepository<AndroidVersion, Long> {
 
-    AndroidVersion getByVersion(String version);
+    AndroidVersion findByVersion(String version);
 
-    @Query(nativeQuery = true, value = "select * from tbl_android_versions v order by v.id desc limit 1")
-    AndroidVersion getLatestVersion();
+    AndroidVersion findFirstByOrderByIdDesc();
 }

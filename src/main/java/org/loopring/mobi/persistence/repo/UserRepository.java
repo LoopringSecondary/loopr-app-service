@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    User getUserByAccountToken(String accountToken);
+    User findUserByAccountToken(String accountToken);
 
-    User getUserByAccountTokenAndIsDeleted(String accountToken, boolean isDeleted);
+    User findUserByAccountTokenAndIsDeleted(String accountToken, boolean isDeleted);
 }
