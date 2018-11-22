@@ -25,8 +25,8 @@ public class AndroidVersionService implements IAndroidVersionService {
     public void newVersion(AndroidVersion androidVersion) {
         AndroidVersion existVersion = repository.getByVersion(androidVersion.getVersion());
         if (existVersion != null) {
-            existVersion.setBaiduUrl(androidVersion.getBaiduUrl());
-            existVersion.setGoogleUrl(androidVersion.getGoogleUrl());
+            existVersion.setBaiduUri(androidVersion.getBaiduUri());
+            existVersion.setGoogleUri(androidVersion.getGoogleUri());
             existVersion.setDescription(androidVersion.getDescription());
             repository.save(existVersion);
         } else {

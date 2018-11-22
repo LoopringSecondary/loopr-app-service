@@ -25,7 +25,7 @@ public class IosVersionService implements IIosVersionService {
     public void newVersion(IosVersion iosVersion) {
         IosVersion existVersion = repository.getByVersion(iosVersion.getVersion());
         if (existVersion != null) {
-            existVersion.setUrl(iosVersion.getUrl());
+            existVersion.setUri(iosVersion.getUri());
             existVersion.setDescription(iosVersion.getDescription());
             repository.save(existVersion);
         } else {

@@ -44,5 +44,5 @@ public class IosVersion {
     private String description;
 
     @Column(columnDefinition = "TEXT")
-    private String url;
+    private String uri;
 }

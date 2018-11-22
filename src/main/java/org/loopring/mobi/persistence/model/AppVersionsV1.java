@@ -16,16 +16,16 @@ import lombok.RequiredArgsConstructor;
 /**
  * Created with IntelliJ IDEA.
  * User: laiyanyan
- * Time: 2018-11-19 4:50 PM
+ * Time: 2018-11-22 11:15 AM
  * Cooperation: loopring.org 路印协议基金会
  */
-@Entity
+@Data
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Data
 @Builder
-@Table(name = "tbl_android_versions")
-public class AndroidVersion {
+@Entity
+@Table(name = "tbl_app_versions")
+public class AppVersionsV1 {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,12 +40,21 @@ public class AndroidVersion {
     @Column(length = 128, unique = true, nullable = false)
     private String version;
 
+    @Column(name = "must_update", columnDefinition = "tinyint(1) NOT NULL DEFAULT '0'")
+    private Boolean mustUpdate = false;
+
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String description;
+    private String description = "";
+
+    @Column(name = "current_installed_version", columnDefinition = "varchar(128) NOT NULL DEFAULT '0.0.1'")
+    private String currentInstalledVersion = "0.0.1";
 
     @Column(name = "baidu_uri", columnDefinition = "TEXT")
     private String baiduUri;
 
     @Column(name = "google_uri", columnDefinition = "TEXT")
     private String googleUri;
+
+    @Column(name = "ios_uri", columnDefinition = "TEXT")
+    private String iosUri;
 }
