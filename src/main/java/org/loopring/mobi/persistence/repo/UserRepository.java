@@ -8,7 +8,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User getUserByAccountToken(String accountToken);
 
     User getUserByAccountTokenAndIsDeleted(String accountToken, boolean isDeleted);
-
-    @Override
-    void delete(User user);
 }
