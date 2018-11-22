@@ -11,28 +11,28 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/user")
-public class UserController {
+@RequestMapping("/api/v1/users")
+public class UserControllerV1 {
 
     @Autowired
     private IUserService service;
 
     @ResponseBody
-    @RequestMapping(value = "/addUser", method = RequestMethod.POST)
+    @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseResult addUser(@RequestBody User user) {
         service.saveUser(user);
         return ResponseResult.generateResult(true);
     }
 
     @ResponseBody
-    @RequestMapping(value = "/getUser")
+    @RequestMapping(value = "", method = RequestMethod.GET)
     public ResponseResult getUser(String accountToken) {
         User user = service.getUser(accountToken);
         return ResponseResult.generateResult(user != null, user);
     }
 
     @ResponseBody
-    @RequestMapping(value = "/deleteUser", method = RequestMethod.DELETE)
+    @RequestMapping(value = "", method = RequestMethod.DELETE)
     public ResponseResult deleteUser(String accountToken) {
         service.deleteUser(accountToken);
         return ResponseResult.generateResult(true);
