@@ -30,6 +30,6 @@ public class AppVersionServiceV1 implements IAppVersionServiceV1 {
 
     @Override
     public List<AppVersionsV1> getAll() {
-        return repository.findAllByOrderByCreateAtAsc();
+        return repository.findAllByOrderByCreatedAtAsc();
     }
 }

@@ -13,5 +13,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface AppVersionRepository extends JpaRepository<AppVersionsV1, Long> {
 
-    List<AppVersionsV1> findAllByOrderByCreateAtAsc();
+    List<AppVersionsV1> findAllByOrderByCreatedAtAsc();
 }
