@@ -4,19 +4,14 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @Primary
-@ComponentScan({"org.loopring.mobi.*"})
-@SpringBootTest
-@RunWith(SpringRunner.class)
+@ComponentScan({"org.loopring.mobi.persistence.repo"})
 public class TestDbConfig extends PersistenceJPAConfig {
 
     @Override
