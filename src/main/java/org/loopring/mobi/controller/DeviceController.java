@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/device")
+@RequestMapping("/rpc/v1/device")
 public class DeviceController {
 
     @Autowired

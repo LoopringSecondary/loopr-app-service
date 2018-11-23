@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Cooperation: loopring.org 路印协议基金会
  */
 @RestController
-@RequestMapping("/api/v1/app_versions")
+@RequestMapping("/rpc/v1/app_versions")
 public class AppVersionControllerV1 {
 
     @Autowired
