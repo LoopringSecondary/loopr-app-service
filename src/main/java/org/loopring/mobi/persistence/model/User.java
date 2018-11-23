@@ -46,7 +46,7 @@ public class User {
     @Column(name = "account_token", unique = true, nullable = false)
     private String accountToken;
 
-    @JsonProperty("json")
+    @JsonProperty("config")
     @Column(columnDefinition = "json")
     private String config;
 
