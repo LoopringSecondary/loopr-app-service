@@ -17,15 +17,15 @@ public class ResponseResult<T> {
 
     private T message;
 
-    public static <T> ResponseResult<T> generateResult(Boolean success, T message) {
-        return (ResponseResult<T>) ResponseResult.builder().success(success).message(message).build();
+    public static <T> ResponseResult generateResult(Boolean success, T message) {
+        return ResponseResult.builder().success(success).message(message).build();
     }
 
-    public static <T> ResponseResult<T> generateResult(Boolean success) {
-        return (ResponseResult<T>) ResponseResult.builder().success(success).message("").build();
+    public static ResponseResult generateResult(Boolean success) {
+        return ResponseResult.builder().success(success).message("").build();
     }
 
-    public static <T> ResponseResult<T> generateResult(T message) {
-        return (ResponseResult<T>) ResponseResult.builder().success(true).message(message).build();
+    public static <T> ResponseResult generateResult(T message) {
+        return ResponseResult.builder().success(true).message(message).build();
     }
 }

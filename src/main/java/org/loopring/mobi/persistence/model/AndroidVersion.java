@@ -1,12 +1,15 @@
 package org.loopring.mobi.persistence.model;
 
 import java.sql.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,21 +34,27 @@ public class AndroidVersion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonProperty("created_at")
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date createdAt;
 
+    @JsonProperty("updated_at")
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date updatedAt;
 
+    @JsonProperty("version")
     @Column(length = 128, unique = true, nullable = false)
     private String version;
 
+    @JsonProperty("description")
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
+    @JsonProperty("baidu_uri")
     @Column(name = "baidu_uri", columnDefinition = "TEXT")
     private String baiduUri;
 
+    @JsonProperty("google_uri")
     @Column(name = "google_uri", columnDefinition = "TEXT")
     private String googleUri;
 }
