@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,14 +27,14 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "/getUser")
-    public ResponseResult getUser(String accountToken) {
+    public ResponseResult getUser(@RequestParam("account_token") String accountToken) {
         User user = service.getUser(accountToken);
         return ResponseResult.generateResult(user != null, user);
     }
 
     @ResponseBody
     @RequestMapping(value = "/deleteUser", method = RequestMethod.DELETE)
-    public ResponseResult deleteUser(String accountToken) {
+    public ResponseResult deleteUser(@RequestParam("account_token") String accountToken) {
         service.deleteUser(accountToken);
         return ResponseResult.generateResult(true);
     }
