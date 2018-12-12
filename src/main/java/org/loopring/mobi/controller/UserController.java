@@ -21,7 +21,13 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "/addUser", method = RequestMethod.POST)
     public ResponseResult addUser(@RequestBody User user) {
-        service.saveUser(user);
+        User user1 = service.getUser(user.getAccountToken());
+        if (user1 != null) {
+            user1.setConfig(user.getConfig());
+        } else {
+            user1 = user;
+        }
+        service.saveUser(user1);
         return ResponseResult.generateResult(true);
     }
 
