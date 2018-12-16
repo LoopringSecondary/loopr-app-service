@@ -24,6 +24,7 @@ public class Application {
             try {
                 byte[] bdata = FileCopyUtils.copyToByteArray(cpr.getInputStream());
                 FileCopyUtils.copy(bdata, dest);
+                System.out.println("Found APNS Certificates");
             } catch (IOException e) {
                 e.printStackTrace();
                 return;

@@ -21,7 +21,7 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
     int count(@Param("device") Device device);
 
     @Modifying
-    @Query("update Device a set a.isEnabled = true, a.currentLanguage = :#{#device.currentLanguage} " +
+    @Query("update Device a set a.isEnabled = :#{#device.isEnabled}, a.currentLanguage = :#{#device.currentLanguage} " +
             "where a.address = :#{#device.address} and a.bundleIdentifier = :#{#device.bundleIdentifier} and a.deviceToken = :#{#device.deviceToken} and a.isReleaseMode = :#{#device.isReleaseMode}")
     void update(@Param("device") Device device);
 
