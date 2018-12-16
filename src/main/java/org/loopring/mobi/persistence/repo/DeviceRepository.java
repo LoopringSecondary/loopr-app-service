@@ -16,8 +16,8 @@ import org.springframework.data.repository.query.Param;
  */
 public interface DeviceRepository extends JpaRepository<Device, Long> {
 
-    @Query("select count(a) from Device a where a.address = :#{#device.address} and a.bundleIdentifier = :#{#device.bundleIdentifier} " +
-            "and a.deviceToken = :#{#device.deviceToken} and a.isReleaseMode = :#{#device.isReleaseMode}")
+    @Query("select count(a) from Device a where a.address = :#{#device.address} " +
+            "and a.deviceToken = :#{#device.deviceToken}")
     int count(@Param("device") Device device);
 
     @Modifying
