@@ -50,6 +50,14 @@ public class IosVersion {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
+    @JsonProperty("release_note_en")
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String releaseNoteEN;
+
+    @JsonProperty("release_note_chs")
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String releaseNoteCHS;
+
     @JsonProperty("uri")
     @Column(columnDefinition = "TEXT")
     private String uri;
