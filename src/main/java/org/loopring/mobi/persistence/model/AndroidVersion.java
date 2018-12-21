@@ -51,12 +51,16 @@ public class AndroidVersion {
     private String description;
 
     @JsonProperty("release_note_en")
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(name = "release_note_en", nullable = false, columnDefinition = "TEXT")
     private String releaseNoteEN;
 
     @JsonProperty("release_note_chs")
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(name = "release_note_chs", nullable = false, columnDefinition = "TEXT")
     private String releaseNoteCHS;
+
+    @JsonProperty("release_note_cht")
+    @Column(name = "release_note_cht", columnDefinition = "TEXT")
+    private String releaseNoteCHT;
 
     @JsonProperty("baidu_uri")
     @Column(name = "baidu_uri", columnDefinition = "TEXT")
