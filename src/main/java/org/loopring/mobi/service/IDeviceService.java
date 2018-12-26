@@ -19,4 +19,6 @@ public interface IDeviceService {
     List<Device> getByBundleIdentifier(String bundleIdentifier);
 
     List<Device> getByAddress(String address);
+    
+    List<Device> getByDeviceToken(String deviceToken);
 }

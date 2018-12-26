@@ -47,11 +47,11 @@ public class Device {
 
     @JsonProperty("address")
     @Column(length = 1024, nullable = false)
-    private String address;
+    public String address;
 
     @JsonProperty("bundle_identifier")
     @Column(name = "bundle_identifier", length = 128, nullable = false)
-    private String bundleIdentifier;
+    public String bundleIdentifier;
 
     @JsonProperty("device_token")
     @Column(name = "device_token", nullable = false, columnDefinition = "TEXT")

@@ -32,4 +32,9 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
     List<Device> findAllByBundleIdentifierAndIsEnabled(String bundleIdentifier, Boolean isEnabled);
 
     List<Device> findAllByAddressAndIsEnabled(String address, Boolean isEnabled);
+    
+    @Modifying
+    @Query("select a from Device a where a.deviceToken = :deviceToken")
+    List<Device> getByDeviceToken(@Param("deviceToken") String deviceToken);
+
 }

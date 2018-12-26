@@ -2,6 +2,8 @@ package org.loopring.mobi.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutionException;
 import javax.net.ssl.SSLException;
 
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.turo.pushy.apns.ApnsClient;
 import com.turo.pushy.apns.ApnsClientBuilder;
+import com.turo.pushy.apns.auth.ApnsSigningKey;
 import com.turo.pushy.apns.PushNotificationResponse;
 import com.turo.pushy.apns.util.ApnsPayloadBuilder;
 import com.turo.pushy.apns.util.SimpleApnsPushNotification;
@@ -50,24 +53,26 @@ public class PushNotificationService {
     //        }
     //    }
 
-    public void send(Device device, String alertBody) {
+    public void send(Device device, String alertBody) {    	
         if (device == null)
             return;
         String filePath;
         String APNS_HOST;
         if (device.getIsReleaseMode()) {
-            filePath = String.format("%s.p12", device.getBundleIdentifier());
+            filePath = String.format("AuthKey_U7D7Z7GLF4.p8");
             APNS_HOST = ApnsClientBuilder.PRODUCTION_APNS_HOST;
         } else {
-            filePath = String.format("%s.development.p12", device.getBundleIdentifier());
+            filePath = String.format("AuthKey_U7D7Z7GLF4.p8");
             APNS_HOST = ApnsClientBuilder.DEVELOPMENT_APNS_HOST;
         }
-        System.out.println(filePath);
-        File f = new File(filePath);
-        System.out.println(f.exists());
         try {
-            final ApnsClient apnsClient = new ApnsClientBuilder().setApnsServer(APNS_HOST)
-                    .setClientCredentials(f, "123456")
+            System.out.println(filePath);
+            File f = new File(filePath);
+            System.out.println(f.exists());
+
+            final ApnsClient apnsClient = new ApnsClientBuilder()
+            		.setApnsServer(APNS_HOST)
+            		.setSigningKey(ApnsSigningKey.loadFromPkcs8File(f, "5WDWHF88Y8", "U7D7Z7GLF4"))
                     .build();
             final SimpleApnsPushNotification pushNotification;
             {
@@ -107,6 +112,10 @@ public class PushNotificationService {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+        	e.printStackTrace();
+        } catch (InvalidKeyException e) {
+        	e.printStackTrace();
         }
     }
     //    private static void recordPushNotification(String bundleIdentifier, String deviceToken, String alertBody) {

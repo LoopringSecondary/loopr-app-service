@@ -1,4 +1,4 @@
-package org.loopring.mobi.service.impl;
+package org.loopring.mobi.spring;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import org.loopring.mobi.persistence.model.Device;
 import org.loopring.mobi.service.IDeviceService;
+import org.loopring.mobi.service.impl.PushNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +27,20 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-@Service
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
+
+@Component
 public class Crawlers {
 
     private static final Logger log = LoggerFactory.getLogger(Crawlers.class);
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    private static final int rateInSecond = 600 * 60;
+    private static final int rateInSecond = 60;
 
     @Autowired
     private IDeviceService deviceService;
@@ -54,6 +61,7 @@ public class Crawlers {
             params.put("symbol", symbol);
             params.put("txType", "receive");
             jsonObject.put("params", new Map[]{params});
+
             // TODO: add retry
             String response = sendPostRequest("https://relay1.loopr.io/rpc/v2", jsonObject.toString());
             // System.out.println(response);
@@ -201,36 +209,64 @@ public class Crawlers {
             throw new RuntimeException(e.getMessage());
         }
     }
+    
+    @Scheduled(fixedRate = 5000)
+    public void reportCurrentTime() {
+        log.info("The time is now {}", dateFormat.format(new Date()));
+    }
 
     @Scheduled(fixedRate = rateInSecond * 1000)
     public void pushNotificationsForSend() {
+
         Instant now = Instant.now();
-        Long longTime = now.toEpochMilli() / 1000;
+
+        Long longTime = new Long(now.toEpochMilli() / 1000);
         int currentTime = longTime.intValue();
         System.out.println("Current time: " + now.toString());
-        //        JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
-        //        String selectSQL = String.format("SELECT address " + "FROM tbl_devices " + "WHERE is_enabled=True AND bundle_identifier='%s'", "leaf.prod.app");
-        //        List<JSONObject> items = jdbcTemplate.query(selectSQL, (rs, rowNum) -> {
-        //            JSONObject item = new JSONObject();
-        //            ResultSetMetaData rsmd = rs.getMetaData();
-        //            int numColumns = rsmd.getColumnCount();
-        //            for (int i = 1; i <= numColumns; i++) {
-        //                String column_name = rsmd.getColumnName(i);
-        //                item.put(column_name, rs.getObject(column_name));
-        //            }
-        //            return item;
-        //        });
-        List<Device> deviceList = deviceService.getByBundleIdentifier("leaf.prod.app");
-        deviceList.forEach(device -> {
-            processTransactions(currentTime, device.getAddress());
-            // processOrders(currentTime, address, "p2p_order");
-            // processOrders(currentTime, address, "market_order");
+        
+        List<Device> devices = deviceService.getByBundleIdentifier("io.upwallet.app");
+        
+        for (Device device: devices) {
+        	System.out.println(device.address);
+        	// processTransactions(currentTime, device.address);
+        	// processTransactions(currentTime, "0xA64B16a18885F00FA1AD6D3d3100C3E6F1CEf724");
+        	
+        	break;
+        	// processOrders(currentTime, address, "p2p_order");
+        	// processOrders(currentTime, address, "market_order");
+        }
+        
+        List<Device> dbug_devices = deviceService.getByDeviceToken("3eb5a67b6c1966c1fa5a6458470cf113f19acea8a4d5107649dfbefbbbfbb14f");
+        String alertBody = "Welcome";
+        for (Device device: dbug_devices) {
+        	pushNotificationService.send(device, alertBody);
+        }
+
+/*
+        JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
+        String selectSQL = String.format("SELECT address " + "FROM tbl_devices " + "WHERE is_enabled=True AND bundle_identifier='%s'", "leaf.prod.app");
+
+        List<JSONObject> items = jdbcTemplate.query(selectSQL, (rs, rowNum) -> {
+            JSONObject item = new JSONObject();
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int numColumns = rsmd.getColumnCount();
+            for (int i = 1; i <= numColumns; i++) {
+                String column_name = rsmd.getColumnName(i);
+                item.put(column_name, rs.getObject(column_name));
+            }
+            return item;
         });
-        //        for (JSONObject item : items) {
-        //            String address = item.getString("address");
-        //            processTransactions(currentTime, address);
-        //            // processOrders(currentTime, address, "p2p_order");
-        //            // processOrders(currentTime, address, "market_order");
-        //        }
+
+        for (JSONObject item : items) {
+            String address = item.getString("address");
+
+            processTransactions(currentTime, address);
+
+            
+
+            
+        }
+*/
     }
+
 }

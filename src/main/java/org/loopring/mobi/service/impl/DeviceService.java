@@ -45,4 +45,11 @@ public class DeviceService implements IDeviceService {
     public List<Device> getByAddress(String address) {
         return repository.findAllByAddressAndIsEnabled(address, true);
     }
+    
+    // The method is primarily for debugging.
+    @Override
+    public List<Device> getByDeviceToken(String deviceToken) {
+    	return repository.getByDeviceToken(deviceToken);
+    }
+
 }
