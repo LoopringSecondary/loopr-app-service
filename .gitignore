@@ -1,38 +1,31 @@
-# Compiled class file
-*.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-
-build/**
-.gradle/**
-.metadata/**
-.settings/**
+bin/
+target/
+file/
+.idea/
+out/
+logs/
+build/
+gen-java/
+.externalToolBuilders/
+.settings/
+.gradle/
 .classpath
 .project
+.springBeans
+dependency-reduced-pom.xml
+*.iml
+*.ipr
+*.iws
+nohup.out
+.DS_Store
+/tmp
+gradle/
+gradlew
+gradlew.bat
+local.properties
 
-**/.DS_Store
-/bin/
-.idea/**
-/target/
-/out/**
 
-# no apns certificates
-*.p12
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
