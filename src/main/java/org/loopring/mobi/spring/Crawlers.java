@@ -40,7 +40,7 @@ public class Crawlers {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    private static final int rateInSecond = 60;
+    private static final int rateInSecond = 180;
 
     @Autowired
     private IDeviceService deviceService;
