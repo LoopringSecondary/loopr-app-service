@@ -49,7 +49,7 @@ public class Crawlers {
     private PushNotificationService pushNotificationService;
 
     // loopring_getTransactions
-    public void processTransactions(int currentTime, String address) {
+    public void processTransactions(int currentTime, Device device, String txType) {
         // TODO: support only three tokens in the first version
         String[] symbols = new String[]{"ETH", "WETH", "LRC"};
         for (String symbol : symbols) {
@@ -57,16 +57,17 @@ public class Crawlers {
             jsonObject.put("method", "loopring_getTransactions");
             jsonObject.put("id", UUID.randomUUID().toString());
             Map<String, String> params = new HashMap<>();
-            params.put("owner", address);
+            params.put("owner", device.address);
             params.put("symbol", symbol);
-            params.put("txType", "receive");
+            params.put("txType", txType);
             jsonObject.put("params", new Map[]{params});
 
             // TODO: add retry
             String response = sendPostRequest("https://relay1.loopr.io/rpc/v2", jsonObject.toString());
             // System.out.println(response);
             JSONObject responseObject = JSONObject.parseObject(response);
-            if (responseObject.containsKey("result")) {
+            // Valid the rpc response.
+            if (!responseObject.containsKey("result")) {
                 log.info("No transactions found.");
                 continue;
             }
@@ -83,12 +84,42 @@ public class Crawlers {
                     System.out.println(currentTime - createTime);
                     System.out.println(object.toString());
                     String value = object.getString("value");
-                    String alertBody = String.format("Address %s received %s %s.", address, stringToBigInteger(value), symbol);
+
+                    String alertBody;
+                    String alertBodyFormat = "";
+                    
+                    // Supported types: receive, buy, sell.
+                    if (txType.equals("receive")) {
+                    	if (device.currentLanguage.equals("zh-Hans")) {
+                    		alertBodyFormat = "地址%s收到%s %s。";
+                    	} else if (device.currentLanguage.equals("zh-Hant")) {
+                    		alertBodyFormat = "地址%s收到%s %s。";
+                    	} else {
+                    		alertBodyFormat = "Address %s received %s %s.";
+                    	}
+                    } else if (txType.equals("buy")) {
+                    	if (device.currentLanguage.equals("zh-Hans")) {
+                    		alertBodyFormat = "地址%sma买入%s %s。";
+                    	} else if (device.currentLanguage.equals("zh-Hant")) {
+                    		alertBodyFormat = "地址%sma買入%s %s。";
+                    	} else {
+                    		alertBodyFormat = "Address %s bought %s %s.";
+                    	}
+                    } else if (txType.equals("sell")) {
+                    	if (device.currentLanguage.equals("zh-Hans")) {
+                    		alertBodyFormat = "地址%sma卖出%s %s。";
+                    	} else if (device.currentLanguage.equals("zh-Hant")) {
+                    		alertBodyFormat = "地址%sma賣出%s %s。";
+                    	} else {
+                    		alertBodyFormat = "Address %s sold %s %s.";
+                    	}
+                    } else {
+                    	return;
+                    }
+
+                    alertBody = String.format(alertBodyFormat, device.address, stringToBigInteger(value), symbol);
                     System.out.println(alertBody);
-                    Optional.ofNullable(deviceService.getByAddress(address))
-                            .orElse(Collections.emptyList())
-                            .forEach(device -> pushNotificationService.send(device, alertBody));
-                    //                    PushNotificationService.process(address, alertBody);
+                    pushNotificationService.send(device, alertBody);
                     System.out.println(".....");
                 }
             }
@@ -96,12 +127,12 @@ public class Crawlers {
     }
 
     // loopring_getOrders
-    public void processOrders(int currentTime, String address, String orderType) {
+    public void processOrders(int currentTime, Device device, String orderType) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("method", "loopring_getOrders");
         jsonObject.put("id", UUID.randomUUID().toString());
         Map<String, String> params = new HashMap<>();
-        params.put("owner", address);
+        params.put("owner", device.address);
         params.put("status", "ORDER_FINISHED");
         params.put("orderType", orderType);
         jsonObject.put("params", new Map[]{params});
@@ -109,12 +140,20 @@ public class Crawlers {
         String response = sendPostRequest("https://relay1.loopr.io/rpc/v2", jsonObject.toString());
         // System.out.println(response);
         JSONObject responseObject = JSONObject.parseObject(response);
+        // Valid the rpc response.
+        if (!responseObject.containsKey("result")) {
+            log.info("No transactions found.");
+            return;
+        }
+        System.out.println(String.format("processOrders %s for %s", device.address, orderType));
         JSONArray results = responseObject.getJSONObject("result").getJSONArray("data");
         for (int n = 0; n < results.size(); n++) {
             JSONObject object = results.getJSONObject(n).getJSONObject("originalOrder");
             // do some stuff....
+            // Couldn't do createTime
             int createTime = object.getInteger("createTime");
-            // System.out.println(object.toString());
+
+            System.out.println(object.toString());
             if (currentTime - createTime < rateInSecond) {
                 System.out.println("About to send PushNotificationService");
                 System.out.println("CreateTime: " + createTime);
@@ -131,26 +170,53 @@ public class Crawlers {
                     side = object.getString("side");
                 }
                 String alertBody;
+                
+                // Prepare the format of alert body.
+                String buyFormat = "";
+                String sellFormat = "";
+                String p2pOrderTrailingFormat = "";
+                String marketorderTrailingFormat = "";
+                if (device.currentLanguage.equals("zh-Hans")) {
+                	buyFormat = "地址%sma买入%s %s";
+                	sellFormat = "地址%sma賣出%s %s";
+                	p2pOrderTrailingFormat = "在一次场外交易中";
+                	marketorderTrailingFormat = "在一次市场交易中";
+                } else if (device.currentLanguage.equals("zh-Hant")) {
+                	buyFormat = "地址%sma买入%s %s";
+                	sellFormat = "地址%sma賣出%s %s";
+                	p2pOrderTrailingFormat = "在一次場外交易中";
+                	marketorderTrailingFormat = "在一次市場交易中";
+                } else {
+                	buyFormat = "Address %s bought %s %s";
+                	sellFormat = "Address %s sold %s %s";
+                	p2pOrderTrailingFormat = " in a P2P order.";
+                	marketorderTrailingFormat = " in a market order.";
+                }
+                
                 if (side.equals("sell")) {
                     String amountS = object.getString("amountS");
                     String tokenS = object.getString("tokenS");
-                    alertBody = String.format("Address %s bought %s %s", address, stringToBigInteger(amountS), tokenS);
+                    alertBody = String.format(buyFormat, device.address, stringToBigInteger(amountS), tokenS);
                 } else {
                     String amountB = object.getString("amountB");
                     String tokenB = object.getString("tokenB");
-                    alertBody = String.format("Address %s sold %s %s", address, stringToBigInteger(amountB), tokenB);
+                    alertBody = String.format(sellFormat, device.address, stringToBigInteger(amountB), tokenB);
                 }
                 if (orderType.equals("p2p_order")) {
-                    alertBody = alertBody + " in a P2P order.";
+                	if (device.currentLanguage.equals("zh-Hans") || device.currentLanguage.equals("zh-Hant")) {
+                		alertBody = String.format("%s, %s", p2pOrderTrailingFormat, alertBody);
+                	} else {
+                		alertBody = alertBody + p2pOrderTrailingFormat;
+                	}
                 } else {
-                    alertBody = alertBody + " in a market order.";
+                	if (device.currentLanguage.equals("zh-Hans") || device.currentLanguage.equals("zh-Hant")) {
+                		alertBody = String.format("%s, %s", marketorderTrailingFormat, alertBody);
+                	} else {
+                		alertBody = alertBody + marketorderTrailingFormat;
+                	}
                 }
                 System.out.println(alertBody);
-                String finalAlertBody = alertBody;
-                Optional.ofNullable(deviceService.getByAddress(address))
-                        .orElse(Collections.emptyList())
-                        .forEach(device -> pushNotificationService.send(device, finalAlertBody));
-//                PushNotificationService.process(address, alertBody);
+                pushNotificationService.send(device, alertBody);
                 System.out.println(".....");
             }
         }
@@ -209,11 +275,6 @@ public class Crawlers {
             throw new RuntimeException(e.getMessage());
         }
     }
-    
-    @Scheduled(fixedRate = 5000)
-    public void reportCurrentTime() {
-        log.info("The time is now {}", dateFormat.format(new Date()));
-    }
 
     @Scheduled(fixedRate = rateInSecond * 1000)
     public void pushNotificationsForSend() {
@@ -228,45 +289,12 @@ public class Crawlers {
         
         for (Device device: devices) {
         	System.out.println(device.address);
-        	// processTransactions(currentTime, device.address);
-        	// processTransactions(currentTime, "0xA64B16a18885F00FA1AD6D3d3100C3E6F1CEf724");
-        	
-        	break;
-        	// processOrders(currentTime, address, "p2p_order");
-        	// processOrders(currentTime, address, "market_order");
+        	processTransactions(currentTime, device, "receive");
+        	processTransactions(currentTime, device, "buy");
+        	processTransactions(currentTime, device, "sell");
+        	// processOrders(currentTime, device, "p2p_order");
+        	// processOrders(currentTime, device, "market_order");
         }
-        
-        List<Device> dbug_devices = deviceService.getByDeviceToken("3eb5a67b6c1966c1fa5a6458470cf113f19acea8a4d5107649dfbefbbbfbb14f");
-        String alertBody = "Welcome";
-        for (Device device: dbug_devices) {
-        	pushNotificationService.send(device, alertBody);
-        }
-
-/*
-        JdbcTemplate jdbcTemplate = DatabaseConnection.getJdbcTemplate();
-        String selectSQL = String.format("SELECT address " + "FROM tbl_devices " + "WHERE is_enabled=True AND bundle_identifier='%s'", "leaf.prod.app");
-
-        List<JSONObject> items = jdbcTemplate.query(selectSQL, (rs, rowNum) -> {
-            JSONObject item = new JSONObject();
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int numColumns = rsmd.getColumnCount();
-            for (int i = 1; i <= numColumns; i++) {
-                String column_name = rsmd.getColumnName(i);
-                item.put(column_name, rs.getObject(column_name));
-            }
-            return item;
-        });
-
-        for (JSONObject item : items) {
-            String address = item.getString("address");
-
-            processTransactions(currentTime, address);
-
-            
-
-            
-        }
-*/
     }
 
 }

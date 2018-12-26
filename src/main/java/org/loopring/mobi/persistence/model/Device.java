@@ -69,5 +69,5 @@ public class Device {
 
     @JsonProperty("current_language")
     @Column(name = "current_language", length = 32)
-    private String currentLanguage;
+    public String currentLanguage;
 }
