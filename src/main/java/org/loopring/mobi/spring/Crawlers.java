@@ -68,7 +68,7 @@ public class Crawlers {
             JSONObject responseObject = JSONObject.parseObject(response);
             // Valid the rpc response.
             if (!responseObject.containsKey("result")) {
-                log.info("No transactions found.");
+                // log.info("No transactions found.");
                 continue;
             }
             JSONObject results = responseObject.getJSONObject("result");
@@ -192,7 +192,7 @@ public class Crawlers {
         List<Device> devices = deviceService.getByBundleIdentifier("io.upwallet.app");
         
         for (Device device: devices) {
-        	System.out.println(device.address);
+        	// System.out.println(device.address);
         	processTransactions(currentTime, device, "receive");
         	processTransactions(currentTime, device, "buy");
         	processTransactions(currentTime, device, "sell");

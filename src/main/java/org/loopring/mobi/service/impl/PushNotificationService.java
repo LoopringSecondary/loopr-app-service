@@ -59,16 +59,22 @@ public class PushNotificationService {
         String filePath;
         String APNS_HOST;
         if (device.getIsReleaseMode()) {
+        	System.out.println("in release mode ..................");
             filePath = String.format("AuthKey_U7D7Z7GLF4.p8");
             APNS_HOST = ApnsClientBuilder.PRODUCTION_APNS_HOST;
         } else {
+        	System.out.println("in development mode ..................");
             filePath = String.format("AuthKey_U7D7Z7GLF4.p8");
-            APNS_HOST = ApnsClientBuilder.DEVELOPMENT_APNS_HOST;
+            // TODO: there is a bug when registering data
+            // APNS_HOST = ApnsClientBuilder.DEVELOPMENT_APNS_HOST;
+            APNS_HOST = ApnsClientBuilder.PRODUCTION_APNS_HOST;
         }
         try {
             System.out.println(filePath);
             File f = new File(filePath);
-            System.out.println(f.exists());
+            if (f.exists()) {
+            	System.out.println(String.format("p8 %s", f.exists()));
+            }
 
             final ApnsClient apnsClient = new ApnsClientBuilder()
             		.setApnsServer(APNS_HOST)
